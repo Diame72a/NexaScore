@@ -1,0 +1,166 @@
+﻿@model IEnumerable<Projet.Models.Poste>
+@{ ViewData["Title"] = "Référentiel Métiers"; }
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <div class="rounded p-2 me-3 shadow-sm text-white" 
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <i class="fas fa-briefcase fa-lg"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0 text-dark">Référentiel Métiers</h4>
+                <p class="mb-0 text-muted small">Gérez les intitulés de postes de l'entreprise</p>
+            </div>
+        </div>
+        <a asp-action="Create" class="btn text-white shadow-sm fw-bold btn-sm px-4 rounded-pill"
+           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border:none;">
+            <i class="fas fa-plus me-2"></i>Nouveau Métier
+        </a>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                
+                <div class="card-header bg-white py-3 border-bottom">
+                    <div class="row align-items-center justify-content-between">
+                        
+                        <div class="col-md-4">
+                            <h5 class="mb-0 fw-bold text-dark">Liste des Postes <span class="badge bg-light text-secondary ms-2">@Model.Count()</span></h5>
+                        </div>
+
+                        <div class="col-md-6">
+                            <form asp-action="Index" method="get">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" 
+                                           class="form-control bg-light border-start-0" 
+                                           placeholder="Filtrer..." 
+                                           onchange="this.form.submit()"> @if (!string.IsNullOrEmpty((string)ViewData["CurrentFilter"]))
+                                    {
+                                        <a asp-action="Index" class="btn btn-light border-start text-danger" title="Effacer"><i class="fas fa-times"></i></a>
+                                    }
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr class="text-muted small text-uppercase fw-bold">
+                                <th class="ps-4 py-3">Intitulé</th>
+                                <th>Statut</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center py-5 text-muted">
+                                        <i class="fas fa-folder-open fa-2x mb-3 opacity-25"></i><br />
+                                        Aucun métier trouvé pour "@ViewData["CurrentFilter"]".
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 fw-bold" 
+                                                     style="width: 35px; height: 35px;">
+                                                    <i class="fas fa-user-tie small"></i>
+                                                </div>
+                                                <span class="fw-bold text-dark">@item.Intitule</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Actif</span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="btn-group shadow-sm">
+                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-white text-primary border-end"><i class="fas fa-pen"></i></a>
+                                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-white text-secondary border-end"><i class="fas fa-eye"></i></a>
+                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-white text-danger"><i class="fas fa-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white py-3 border-0">
+                    <small class="text-muted">Affichage de tous les éléments</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            @if (Model.Any())
+            {
+                <div class="card border-0 shadow-sm sticky-top" style="top: 100px; z-index: 1;"> 
+                    <div class="card-header bg-white border-0 fw-bold small text-uppercase text-muted pt-4">
+                        🏆 Top Recrutements
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 250px; width: 100%;">
+                            <canvas id="chartPostes"></canvas>
+                        </div>
+                        <p class="text-center small text-muted mt-3 lh-sm">
+                            Les métiers les plus demandés dans vos offres actuelles.
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var ctx = document.getElementById('chartPostes').getContext('2d');
+
+            var labels = @Html.Raw(Json.Serialize(ViewBag.Labels));
+            var data = @Html.Raw(Json.Serialize(ViewBag.Data));
+
+            if(labels.length === 0) { labels = ["Aucune donnée"]; data = [0]; }
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Offres",
+                        data: data,
+                        backgroundColor: 'rgba(118, 75, 162, 0.8)', 
+                        borderRadius: 4,
+                        barThickness: 20,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Horizontal pour lire les noms
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, grid: { display: false }, ticks: { stepSize: 1 } },
+                        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                    }
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,44 @@
+﻿@model Projet.Models.Personne
+@{
+    ViewData["Title"] = "Supprimer Candidat";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 text-center">
+                <div class="card-body p-5">
+                    <div class="mb-4 text-danger">
+                        <i class="fas fa-user-times fa-4x"></i>
+                    </div>
+
+                    <h2 class="fw-bold text-dark mb-3">Supprimer ce profil ?</h2>
+                    <p class="text-muted mb-4">
+                        Vous êtes sur le point de retirer <strong>@Model.Prenom @Model.Nom</strong> de la base de données.<br>
+                        Son historique et ses scores de matching seront perdus.
+                    </p>
+
+                    <div class="bg-danger bg-opacity-10 p-3 rounded mb-4 text-start border border-danger border-opacity-25">
+                        <small class="text-uppercase text-danger fw-bold">Profil Ciblé :</small>
+                        <ul class="list-unstyled mt-2 mb-0 text-secondary">
+                            <li><i class="fas fa-envelope me-2 text-danger"></i>@Model.Email</li>
+                            <li><i class="fas fa-map-marker-alt me-2 text-danger"></i>@Model.Ville</li>
+                        </ul>
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg shadow-sm fw-bold">
+                                Confirmer la suppression
+                            </button>
+                            <a asp-action="Index" class="btn btn-light border btn-lg">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

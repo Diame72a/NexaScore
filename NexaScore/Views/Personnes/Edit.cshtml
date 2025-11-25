@@ -1,0 +1,155 @@
+﻿@using System.Linq
+@model Projet.Models.Personne
+
+@{
+    ViewData["Title"] = "Modifier le profil";
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 mx-auto" style="max-width: 1000px;">
+        <div class="d-flex align-items-center">
+            <div class="rounded p-2 me-3 shadow-sm text-white bg-warning"
+                 style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);">
+                <i class="fas fa-user-edit fa-lg"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0 text-dark">Éditer le profil</h4>
+                <small class="text-muted">Modification des informations de @Model.Prenom @Model.Nom</small>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-light border text-muted shadow-sm btn-sm px-4 rounded-pill">
+                <i class="fas fa-times me-2"></i>Annuler
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+
+                <form asp-action="Edit">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="card-body p-5">
+                        <div class="row g-5">
+
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-muted text-uppercase small mb-4 border-bottom pb-2">
+                                    <i class="fas fa-id-card me-2 text-warning"></i>Identité
+                                </h6>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label asp-for="Prenom" class="form-label small fw-bold text-muted">Prénom</label>
+                                        <input asp-for="Prenom" class="form-control bg-light border-0 px-3 py-2" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Nom" class="form-label small fw-bold text-muted">Nom</label>
+                                        <input asp-for="Nom" class="form-control bg-light border-0 px-3 py-2" />
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label asp-for="Email" class="form-label small fw-bold text-muted">Email</label>
+                                    <input asp-for="Email" class="form-control bg-light border-0 py-2" />
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="DateNaissance" class="form-label small fw-bold text-muted">Date de Naissance</label>
+                                    <input asp-for="DateNaissance" type="date" class="form-control bg-light border-0 px-3 py-2" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 border-start-lg pl-lg-5">
+                                <h6 class="fw-bold text-muted text-uppercase small mb-4 border-bottom pb-2">
+                                    <i class="fas fa-globe-europe me-2 text-info"></i>Localisation
+                                </h6>
+                                <div class="row g-2 mb-4">
+                                    <div class="col-8">
+                                        <label asp-for="Ville" class="form-label small fw-bold text-muted">Ville</label>
+                                        <input asp-for="Ville" id="inputVille" class="form-control bg-light border-0 py-2" />
+                                    </div>
+                                    <div class="col-4">
+                                        <label asp-for="CodePostal" class="form-label small fw-bold text-muted">CP</label>
+                                        <input asp-for="CodePostal" class="form-control bg-light border-0 py-2" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-5">
+                                    <label asp-for="AnneesExperienceTotal" class="form-label small fw-bold text-muted">Années d'expérience</label>
+                                    <input asp-for="AnneesExperienceTotal" type="number" class="form-control bg-light border-0 py-2" />
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                                    <h6 class="fw-bold text-muted text-uppercase small mb-0">
+                                        <i class="fas fa-layer-group me-2 text-success"></i>Compétences
+                                    </h6>
+                                    <button type="button" class="btn btn-sm btn-success text-white rounded-pill px-3 fw-bold shadow-sm"
+                                            style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%); border:none;"
+                                            onclick="loadBulkModal(@Model.Id)">
+                                        <i class="fas fa-plus me-1"></i> Ajouter
+                                    </button>
+                                </div>
+
+                                @if (Model.CompetenceAcquises != null && Model.CompetenceAcquises.Any())
+                                {
+                                    <div class="d-flex flex-column gap-2">
+                                        @foreach (var item in Model.CompetenceAcquises.OrderByDescending(x => x.Niveau))
+                                        {
+                                            <div class="p-2 bg-light rounded border-0 d-flex align-items-center justify-content-between">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="badge bg-white text-dark border me-2">@item.Niveau/5</div>
+                                                    <span class="fw-bold text-dark small">@item.Competence?.Nom</span>
+                                                </div>
+                                                <form asp-action="SupprimerCompetence" method="post">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <input type="hidden" name="source" value="Edit" />
+                                                    <button type="submit" class="btn btn-link text-muted p-0 small hover-red"><i class="fas fa-times"></i></button>
+                                                </form>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center py-4 border border-dashed rounded-3 text-muted">
+                                        <p class="mb-0 small">Aucune compétence.</p>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white p-4 border-top text-end">
+                        <button type="submit" class="btn text-white fw-bold rounded-pill px-5 py-2 shadow-sm"
+                                style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border:none;">
+                            <i class="fas fa-save me-2"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalBulkAdd" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%);">
+                <h5 class="modal-title fw-bold"><i class="fas fa-layer-group me-2"></i>Ajout Multiple</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div id="modalBulkContent"><div class="p-5 text-center"><div class="spinner-border text-primary"></div></div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadBulkModal(personneId) {
+        var myModal = new bootstrap.Modal(document.getElementById('modalBulkAdd'));
+        myModal.show();
+        fetch('/Personnes/AjouterPlusieurs/' + personneId)
+            .then(r => r.text())
+            .then(h => document.getElementById('modalBulkContent').innerHTML = h);
+    }
+</script>

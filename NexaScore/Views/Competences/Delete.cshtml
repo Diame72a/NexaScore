@@ -1,0 +1,35 @@
+﻿@model Projet.Models.Competence
+@{
+    ViewData["Title"] = "Supprimer Compétence";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow border-0 text-center">
+                <div class="card-body p-5">
+                    <div class="mb-4 text-danger">
+                        <i class="fas fa-bomb fa-4x"></i>
+                    </div>
+
+                    <h3 class="fw-bold text-dark mb-3">Supprimer "@Model.Nom" ?</h3>
+                    <p class="text-muted mb-4">
+                        Cette action est irréversible. Si des candidats possèdent cette compétence, elle disparaîtra de leur profil.
+                    </p>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg shadow-sm fw-bold">
+                                Confirmer la suppression
+                            </button>
+                            <a asp-action="Index" class="btn btn-light border btn-lg">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

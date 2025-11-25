@@ -1,0 +1,38 @@
+﻿@model Projet.Models.Poste
+@{
+    ViewData["Title"] = "Nouveau Métier";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white py-3 text-center">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex p-3 mb-2">
+                        <i class="fas fa-briefcase fa-2x"></i>
+                    </div>
+                    <h5 class="mb-0 fw-bold">Créer un nouveau poste</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-floating mb-4">
+                            <input asp-for="Intitule" class="form-control" placeholder="Intitulé" />
+                            <label asp-for="Intitule">Intitulé du poste (ex: Architecte Réseau)</label>
+                            <span asp-validation-for="Intitule" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn text-white fw-bold py-2"
+                                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border:none;">
+                                Enregistrer
+                            </button>
+                            <a asp-action="Index" class="btn btn-light text-muted">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

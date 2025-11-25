@@ -1,0 +1,40 @@
+﻿@model Projet.Models.Competence
+@{
+    ViewData["Title"] = "Ajouter Compétence";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-tag me-2 text-warning"></i>Nouvelle Compétence</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Nom" class="form-control" placeholder="Nom" />
+                            <label asp-for="Nom">Intitulé (ex: Python, Anglais, Scrum)</label>
+                            <span asp-validation-for="Nom" class="text-danger small"></span>
+                        </div>
+
+                        <div class="alert alert-light border small text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Évitez les doublons (ex: "C#" et "csharp"). Le système est sensible à l'orthographe.
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a asp-action="Index" class="btn btn-light border">Annuler</a>
+                            <button type="submit" class="btn text-dark fw-bold px-4"
+                                    style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%); border:none;">
+                                Ajouter au catalogue
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,51 @@
+﻿@model Projet.Models.Competence
+@{
+    ViewData["Title"] = "Détails Compétence";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 mb-4 text-center">
+                <div class="card-body p-5">
+                    <div class="mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm"
+                         style="width: 100px; height: 100px; background-color: #fff0f3; color: #ff6b81; font-size: 2.5rem; font-weight: bold;">
+                        @Model.Nom.Substring(0, 1).ToUpper()
+                    </div>
+
+                    <h2 class="fw-bold mb-1">@Model.Nom</h2>
+                    <span class="badge bg-light text-secondary border mt-2">ID Ref: #@Model.Id</span>
+
+                    <div class="row mt-5 g-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded border">
+                                <h3 class="fw-bold text-dark mb-0">--</h3>
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Offres liées</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded border">
+                                <h3 class="fw-bold text-dark mb-0">--</h3>
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Candidats</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white p-3">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-dark me-2">Renommer</a>
+                    <a asp-action="Index" class="btn btn-link text-muted">Retour à la liste</a>
+                </div>
+            </div>
+
+            <div class="card border-danger border-opacity-25 bg-danger bg-opacity-10 shadow-sm border-0">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-danger fw-bold mb-1">Supprimer cette compétence</h6>
+                        <p class="small text-muted mb-0">Attention, cela la retirera de tous les profils et offres.</p>
+                    </div>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger shadow-sm">Supprimer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+﻿@model Projet.Models.Competence
+@{
+    ViewData["Title"] = "Modifier Compétence";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-edit me-2"></i>Correction</h5>
+                    <span class="badge bg-warning text-dark">Édition</span>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-floating mb-4">
+                            <input asp-for="Nom" class="form-control" />
+                            <label asp-for="Nom">Intitulé de la compétence</label>
+                            <span asp-validation-for="Nom" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between border-top pt-3">
+                            <a asp-action="Index" class="btn btn-link text-muted text-decoration-none">
+                                <i class="fas fa-arrow-left me-1"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-dark px-4 shadow-sm">
+                                Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

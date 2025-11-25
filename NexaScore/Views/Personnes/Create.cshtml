@@ -1,0 +1,154 @@
+﻿@model Projet.Models.Personne
+@{
+    ViewData["Title"] = "Nouveau Candidat";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 mx-auto" style="max-width: 1000px;">
+        <div class="d-flex align-items-center">
+            <div class="rounded p-2 me-3 shadow-sm text-white" style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%);">
+                <i class="fas fa-user-plus fa-lg"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0 text-dark">Nouveau Candidat</h4>
+                <small class="text-muted">Remplissez les informations pour créer une fiche talent.</small>
+            </div>
+        </div>
+        <a asp-action="Index" class="btn btn-light border text-muted shadow-sm btn-sm px-4 rounded-pill">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+
+                <form asp-action="Create">
+                    <div class="card-body p-5">
+                        <div class="row g-5">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-muted text-uppercase small mb-4 border-bottom pb-2">
+                                    <i class="fas fa-address-card me-2 text-primary"></i>Informations Personnelles
+                                </h6>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label asp-for="Prenom" class="form-label small fw-bold text-muted">Prénom *</label>
+                                        <input asp-for="Prenom" class="form-control bg-light border-0 px-3 py-2" />
+                                        <span asp-validation-for="Prenom" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Nom" class="form-label small fw-bold text-muted">Nom *</label>
+                                        <input asp-for="Nom" class="form-control bg-light border-0 px-3 py-2" />
+                                        <span asp-validation-for="Nom" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label asp-for="Email" class="form-label small fw-bold text-muted">Email *</label>
+                                    <input asp-for="Email" class="form-control bg-light border-0 py-2" />
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="DateNaissance" class="form-label small fw-bold text-muted">Date de Naissance</label>
+                                    <input asp-for="DateNaissance" type="date" class="form-control bg-light border-0 px-3 py-2" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 border-start-lg pl-lg-5">
+                                <h6 class="fw-bold text-muted text-uppercase small mb-4 border-bottom pb-2">
+                                    <i class="fas fa-briefcase me-2 text-success"></i>Expérience & Profil
+                                </h6>
+
+                                <div class="row g-2 mb-4">
+                                    <div class="col-8 position-relative">
+                                        <label asp-for="Ville" class="form-label small fw-bold text-muted">VILLE *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-0 text-muted ps-3"><i class="fas fa-map-marker-alt text-danger small"></i></span>
+                                            <input asp-for="Ville" id="inputVille" class="form-control bg-light border-0 py-2" placeholder="Tapez pour chercher..." autocomplete="off" />
+                                            <ul id="suggestionsVille" class="dropdown-menu w-100 shadow border-0" style="display:none; max-height: 200px; overflow-y: auto;"></ul>
+                                        </div>
+                                        <span asp-validation-for="Ville" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-4">
+                                        <label asp-for="CodePostal" class="form-label small fw-bold text-muted">CP</label>
+                                        <input asp-for="CodePostal" id="inputCp" class="form-control bg-light border-0 py-2" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-5">
+                                    <label asp-for="AnneesExperienceTotal" class="form-label small fw-bold text-muted">Expérience (Ans) *</label>
+                                    <div class="d-flex align-items-center bg-light rounded px-3 py-2">
+                                        <i class="fas fa-graduation-cap text-muted me-3 fa-lg"></i>
+                                        <input asp-for="AnneesExperienceTotal" type="number" min="0" max="50" class="form-control border-0 bg-transparent fw-bold text-dark" placeholder="0" />
+                                    </div>
+                                </div>
+
+                                <div class="p-4 rounded-3 bg-primary bg-opacity-10 text-center border border-primary border-opacity-25">
+                                    <i class="fas fa-file-upload fa-2x text-primary mb-3 opacity-50"></i>
+                                    <h6 class="fw-bold text-dark mb-1">CV & Documents</h6>
+                                    <p class="small text-muted mb-0">Gestion des fichiers disponible après création.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white p-4 border-top">
+                        <div class="d-flex justify-content-end gap-3">
+                            <a asp-action="Index" class="btn btn-light border fw-bold rounded-pill px-4 py-2">Annuler</a>
+                            <button type="submit" class="btn btn-primary-gradient fw-bold rounded-pill px-5 py-2 shadow-sm">Créer la fiche</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+        .border-start-lg {
+            border-left: 1px solid #e9ecef !important;
+        }
+
+        .pl-lg-5 {
+            padding-left: 3rem !important;
+        }
+
+    .form-control.bg-light:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+        border-color: #a4b1cd !important;
+    }
+</style>
+
+<script>
+    const inputVille = document.getElementById('inputVille');
+    const suggestionsList = document.getElementById('suggestionsVille');
+    const inputCp = document.getElementById('inputCp');
+
+    inputVille.addEventListener('input', function() {
+        const query = this.value;
+        if (query.length < 3) { suggestionsList.style.display = 'none'; return; }
+
+        fetch(`https://geo.api.gouv.fr/communes?nom=${query}&fields=nom,codesPostaux&boost=population&limit=5`)
+            .then(response => response.json())
+            .then(data => {
+                suggestionsList.innerHTML = '';
+                if (data.length > 0) {
+                    suggestionsList.style.display = 'block';
+                    data.forEach(ville => {
+                        const item = document.createElement('li');
+                        item.innerHTML = `<a class="dropdown-item" href="#" onclick="selectVille(event, '${ville.nom}', '${ville.codesPostaux[0]}')">${ville.nom} (${ville.codesPostaux[0]})</a>`;
+                        suggestionsList.appendChild(item);
+                    });
+                } else { suggestionsList.style.display = 'none'; }
+            });
+    });
+
+    function selectVille(e, nom, cp) {
+        e.preventDefault();
+        inputVille.value = nom;
+        inputCp.value = cp;
+        suggestionsList.style.display = 'none';
+    }
+
+    document.addEventListener('click', function(e) { if (e.target !== inputVille) suggestionsList.style.display = 'none'; });
+</script>

@@ -1,0 +1,167 @@
+﻿@model IEnumerable<Projet.Models.Offre>
+@{ ViewData["Title"] = "Gestion des Offres"; }
+
+<div class="container-fluid py-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center">
+            <div class="bg-primary text-white rounded p-2 me-3 shadow-sm">
+                <i class="fas fa-briefcase fa-lg"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0 text-dark">Offres d'emploi</h4>
+                <small class="text-muted">@Model.Count() postes ouverts actuellement</small>
+            </div>
+        </div>
+        <a asp-action="Create" class="btn btn-primary-gradient btn-sm px-4 shadow-sm">
+            <i class="fas fa-plus me-2"></i>Nouvelle offre
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-2 bg-light rounded">
+            <form asp-action="Index" method="get" class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" 
+                               class="form-control border-start-0" placeholder="Rechercher (Titre, Ville)...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="posteId" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">Tous les métiers</option>
+                        @if (ViewBag.Postes != null)
+                        {
+                            foreach (var p in (List<Projet.Models.Poste>)ViewBag.Postes)
+                            {
+                                if ((int?)ViewData["CurrentPoste"] == p.Id)
+                                {
+                                    <option value="@p.Id" selected>@p.Intitule</option>
+                                }
+                                else
+                                {
+                                    <option value="@p.Id">@p.Intitule</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <a asp-action="Index" class="btn btn-link btn-sm text-decoration-none text-muted"><i class="fas fa-times me-1"></i>Effacer</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-white border-bottom">
+                            <tr class="text-muted small text-uppercase">
+                                <th class="ps-4">Poste</th>
+                                <th>Métier</th>
+                                <th>Localisation</th>
+                                <th>Date</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fas fa-folder-open fa-2x mb-3 opacity-25"></i><br />
+                                        Aucune offre ne correspond à vos critères.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="fw-bold text-dark">@item.Titre</div>
+                                            <small class="text-muted" style="font-size: 0.75rem;">Réf: #@item.Id</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border fw-normal">
+                                                @item.Poste?.Intitule
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-map-marker-alt text-danger me-1 small"></i> @item.VilleCible
+                                        </td>
+                                        <td class="text-muted small">
+                                            @(item.DateCreation?.ToString("dd/MM/yyyy") ?? "-")
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="btn-group">
+                                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light text-secondary border" title="Voir"><i class="fas fa-eye"></i></a>
+                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light text-primary border" title="Éditer"><i class="fas fa-pen"></i></a>
+                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light text-danger border" title="Supprimer"><i class="fas fa-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            @if (Model.Any())
+            {
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0 fw-bold small text-uppercase text-muted">
+                        Répartition Géo.
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div style="width: 100%; max-height: 200px;">
+                            <canvas id="chartVilles"></canvas>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 text-center">
+                        <small class="text-muted" style="font-size: 0.7rem;">Basé sur les résultats affichés</small>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('chartVilles').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.VillesLabels)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(ViewBag.VillesData)),
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
+                    borderWidth: 0,
+                    hoverOffset: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 } } },
+                    tooltip: { padding: 10 }
+                },
+                cutout: '75%'
+            }
+        });
+    </script>
+}

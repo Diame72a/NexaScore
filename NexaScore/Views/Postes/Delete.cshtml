@@ -1,0 +1,49 @@
+﻿@model Projet.Models.Poste
+
+@{
+    ViewData["Title"] = "Supprimer Poste";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 text-center">
+                <div class="card-body p-5">
+
+                    <div class="mb-4 text-danger position-relative d-inline-block">
+                        <i class="fas fa-briefcase fa-4x opacity-50"></i>
+                        <i class="fas fa-times-circle position-absolute top-0 start-100 translate-middle fa-2x bg-white rounded-circle"></i>
+                    </div>
+
+                    <h3 class="fw-bold text-dark mb-3">Supprimer le métier ?</h3>
+                    <p class="text-muted mb-4">
+                        Vous allez supprimer le poste <strong>"@Model.Intitule"</strong>.
+                    </p>
+
+                    <div class="alert alert-warning border-warning border-opacity-25 d-flex align-items-start text-start mb-4">
+                        <i class="fas fa-exclamation-triangle mt-1 me-3 text-warning"></i>
+                        <div>
+                            <small class="fw-bold text-dark text-uppercase">Attention aux dépendances</small>
+                            <p class="mb-0 small text-muted">
+                                Si des offres d'emploi sont actuellement liées à ce poste ("@Model.Intitule"), la suppression pourrait être bloquée par la base de données pour sécurité.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg shadow-sm fw-bold">
+                                <i class="fas fa-trash-alt me-2"></i>Confirmer la suppression
+                            </button>
+                            <a asp-action="Index" class="btn btn-light border btn-lg">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

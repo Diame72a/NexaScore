@@ -1,0 +1,71 @@
+﻿@model Projet.Models.PersonneBulkCompetenceViewModel
+
+<form asp-action="AjouterPlusieurs" method="post">
+    <input type="hidden" asp-for="PersonneId" />
+
+    <div class="modal-body p-0">
+        @if (!Model.Competences.Any())
+        {
+            <div class="p-5 text-center text-muted">
+                <i class="fas fa-check-circle fa-3x mb-3 text-success opacity-50"></i>
+                <p>Ce candidat possède déjà toutes les compétences du catalogue !</p>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-light border-bottom mb-0 rounded-0 small text-muted">
+                <i class="fas fa-info-circle me-1"></i> Cochez les compétences acquises par le candidat.
+            </div>
+
+            <div style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="bg-light sticky-top">
+                        <tr>
+                            <th class="ps-4" style="width: 50px;">#</th>
+                            <th>Compétence</th>
+                            <th style="width: 180px;">Niveau Réel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Competences.Count; i++)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="form-check">
+                                        <input asp-for="Competences[i].EstSelectionne" class="form-check-input shadow-none" type="checkbox" id="check_@i">
+                                    </div>
+                                    <input type="hidden" asp-for="Competences[i].CompetenceId" />
+                                    <input type="hidden" asp-for="Competences[i].Nom" />
+                                </td>
+                                <td>
+                                    <label class="form-check-label fw-bold text-dark w-100 cursor-pointer" for="check_@i" style="cursor:pointer">
+                                        @Model.Competences[i].Nom
+                                    </label>
+                                </td>
+                                <td class="pe-3">
+                                    <select asp-for="Competences[i].NiveauRequis" class="form-select form-select-sm border-0 bg-light">
+                                        <option value="1">1 - Débutant</option>
+                                        <option value="2">2 - Intermédiaire</option>
+                                        <option value="3">3 - Confirmé</option>
+                                        <option value="4">4 - Avancé</option>
+                                        <option value="5">5 - Expert</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="modal-footer bg-light border-top-0">
+        <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Annuler</button>
+        @if (Model.Competences.Any())
+        {
+            <button type="submit" class="btn btn-success text-white fw-bold px-4" style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%); border:none;">
+                <i class="fas fa-plus-circle me-2"></i>Ajouter la sélection
+            </button>
+        }
+    </div>
+</form>

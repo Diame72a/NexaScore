@@ -21,5 +21,9 @@ namespace Projet.Models
         public List<string> DetailsNegatifs { get; set; } = new List<string>();
 
         public bool IsLocalisationOk { get; set; }
+
+        public List<string> ChartLabels { get; set; } = new List<string>(); 
+        public List<int> ChartDataCandidat { get; set; } = new List<int>(); 
+        public List<int> ChartDataOffre { get; set; } = new List<int>();    
     }
 }  

@@ -1,76 +1,130 @@
 ﻿@model IEnumerable<Projet.Models.Offre>
 
 @{
-    ViewData["Title"] = "Lancer un Matching";
+    ViewData["Title"] = "Centre de Matching";
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-6">
+<div class="container-fluid py-4">
 
-            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
-                <div class="card-header border-0 py-5 text-center text-white"
-                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <div class="mb-3">
-                        <i class="fas fa-robot fa-4x text-white opacity-75"></i>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <div class="rounded p-2 me-3 shadow-sm text-white"
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <i class="fas fa-robot fa-lg"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0 text-dark">Centre de Matching IA</h4>
+                <p class="mb-0 text-muted small">Analysez la compatibilité Offres / Candidats</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-header bg-white py-3 border-bottom">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-0 fw-bold text-dark">Sélectionnez une offre</h5>
+                        </div>
+                        <div class="col-md-6">
+                            <form asp-action="Index" method="get">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                                           class="form-control bg-light border-start-0"
+                                           placeholder="Rechercher une offre..."
+                                           onchange="this.form.submit()">
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <h2 class="fw-bold mb-1">Matching Intelligent</h2>
-                    <p class="mb-0 opacity-75 font-monospace small">Algorithme de Scoring V1.0</p>
                 </div>
 
-                <div class="card-body p-5">
-
-                    @if (Model.Any())
-                    {
-                        <div class="text-center mb-4">
-                            <p class="text-muted">
-                                Sélectionnez une offre d'emploi ci-dessous. Notre algorithme va analyser votre base de candidats pour trouver les meilleures correspondances.
-                            </p>
-                        </div>
-
-                        <div class="form-floating mb-4">
-                            <select id="offerSelect" class="form-select form-select-lg" onchange="updateLaunchButton()">
-                                <option selected disabled value="">-- Choisir une offre --</option>
-                                @foreach (var offre in Model)
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr class="text-muted small text-uppercase fw-bold">
+                                <th class="ps-4 py-3">Offre d'emploi</th>
+                                <th>Métier</th>
+                                <th>Lieu</th>
+                                <th class="text-end pe-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        <i class="fas fa-briefcase fa-2x mb-3 opacity-25"></i><br />
+                                        Aucune offre trouvée. <a asp-controller="Offres" asp-action="Create">Créez-en une !</a>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var item in Model)
                                 {
-                                    <option value="@offre.Id">@offre.Titre (@offre.Poste?.Intitule)</option>
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 fw-bold"
+                                                     style="width: 35px; height: 35px;">
+                                                    @item.Titre.Substring(0, 1)
+                                                </div>
+                                                <div>
+                                                    <span class="fw-bold text-dark d-block">@item.Titre</span>
+                                                    <span class="small text-muted">Réf #@item.Id</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border fw-normal">@item.Poste?.Intitule</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> @item.VilleCible</small>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <a asp-action="Calculer" asp-route-id="@item.Id"
+                                               class="btn btn-sm text-white fw-bold rounded-pill px-3 shadow-sm btn-hover-scale"
+                                               style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border:none;">
+                                                <i class="fas fa-bolt me-1"></i> Analyser
+                                            </a>
+                                        </td>
+                                    </tr>
                                 }
-                            </select>
-                            <label for="offerSelect">Offre à analyser</label>
-                        </div>
-
-                        <div class="d-grid">
-                            <a id="btnLaunch" href="#" class="btn btn-primary-gradient btn-lg py-3 disabled shadow-sm">
-                                <span id="btnText">Sélectionnez une offre...</span>
-                                <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
-                        </div>
-
-                        <div class="text-center mt-3">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Le calcul prend en compte les compétences, l'expérience et la localisation.
-                            </small>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-3">
-                            <div class="text-warning mb-3"><i class="fas fa-exclamation-triangle fa-3x"></i></div>
-                            <h4 class="fw-bold text-dark">Aucune offre disponible</h4>
-                            <p class="text-muted mb-4">Vous devez créer au moins une offre d'emploi avant de lancer un matching.</p>
-                            <a asp-controller="Offres" asp-action="Create" class="btn btn-outline-primary rounded-pill px-4">
-                                <i class="fas fa-plus me-2"></i>Créer une offre maintenant
-                            </a>
-                        </div>
-                    }
-
+                            }
+                        </tbody>
+                    </table>
                 </div>
+            </div>
+        </div>
 
-                <div class="card-footer bg-light border-0 text-center py-3">
-                    <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted small fw-bold">
-                        <i class="fas fa-times me-1"></i> Annuler et retour Dashboard
-                    </a>
+        <div class="col-lg-3">
+
+            <div class="card border-0 shadow-sm mb-4 bg-dark text-white"
+                 style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                <div class="card-body p-4 position-relative overflow-hidden">
+                    <h2 class="display-4 fw-bold mb-0">@ViewBag.TotalCandidats</h2>
+                    <p class="text-white-50 small text-uppercase fw-bold mb-3">Profils analysés</p>
+                    <hr class="opacity-25">
+                    <p class="small mb-0 opacity-75">
+                        L'algorithme compare chaque offre à l'intégralité de votre vivier de talents en temps réel.
+                    </p>
+                    <i class="fas fa-users position-absolute" style="font-size: 8rem; right: -30px; bottom: -30px; opacity: 0.1;"></i>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-bold small text-uppercase text-muted">Comment ça marche ?</div>
+                <div class="card-body">
+                    <ul class="list-unstyled small text-muted mb-0">
+                        <li class="mb-2 d-flex"><i class="fas fa-check-circle text-success me-2 mt-1"></i> <span>Analyse sémantique des compétences</span></li>
+                        <li class="mb-2 d-flex"><i class="fas fa-check-circle text-success me-2 mt-1"></i> <span>Calcul pondéré de l'expérience</span></li>
+                        <li class="d-flex"><i class="fas fa-check-circle text-success me-2 mt-1"></i> <span>Compatibilité géographique</span></li>
+                    </ul>
                 </div>
             </div>
 
@@ -78,28 +132,12 @@
     </div>
 </div>
 
-<script>
-    function updateLaunchButton() {
-        // 1. On récupère l'ID de l'offre choisie
-        var selectBox = document.getElementById("offerSelect");
-        var selectedId = selectBox.value;
-
-        // 2. On cible le bouton et le texte
-        var btn = document.getElementById("btnLaunch");
-        var btnText = document.getElementById("btnText");
-
-        if (selectedId) {
-            // 3. Si une offre est choisie, on active le bouton et on construit l'URL
-            // L'URL devient : /Scoring/Calculer/5
-            btn.href = "/Scoring/Calculer/" + selectedId;
-
-            // On change le style pour montrer que c'est prêt
-            btn.classList.remove("disabled");
-            btnText.innerText = "Lancer l'analyse maintenant";
-        } else {
-            // Sinon on désactive
-            btn.classList.add("disabled");
-            btnText.innerText = "Sélectionnez une offre...";
-        }
+<style>
+    .btn-hover-scale {
+        transition: transform 0.2s;
     }
-</script>
+
+        .btn-hover-scale:hover {
+            transform: scale(1.05);
+        }
+</style>

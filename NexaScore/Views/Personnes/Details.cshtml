@@ -3,100 +3,145 @@
 
 @{
     ViewData["Title"] = "Profil Candidat";
+
+    // 1. CORRECTION DATE
+    int age = DateTime.Now.Year - Model.DateNaissance.Year;
+
+    // 2. CORRECTION MATH (Erreur int? vers byte)
+    // On sécurise la valeur : si c'est null, on prend 0
+    int experienceReelle = Model.AnneesExperienceTotal ?? 0;
+    int expPercent = Math.Min(experienceReelle * 10, 100);
 }
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<div class="container-fluid py-4">
+<div class="container py-4">
 
-    <div class="mb-4">
-        <a asp-action="Index" class="text-decoration-none text-muted small fw-bold">
-            <i class="fas fa-arrow-left me-1"></i> Retour au vivier
-        </a>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div style="height: 150px; background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);"></div>
+
+        <div class="card-body px-5 pb-4 position-relative">
+            <div class="position-absolute top-0 start-0 translate-middle-y ms-5 border border-4 border-white rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center"
+                 style="width: 130px; height: 130px; margin-top: -20px;">
+                <span class="fw-bold text-primary display-4">@Model.Prenom.Substring(0, 1)@Model.Nom.Substring(0, 1)</span>
+            </div>
+
+            <div class="row mt-5 pt-2">
+                <div class="col-md-8">
+                    <h2 class="fw-bold text-dark mb-1">@Model.Prenom @Model.Nom</h2>
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-map-marker-alt me-2 text-danger"></i>@Model.Ville (@Model.CodePostal)
+                        <span class="mx-2">•</span>
+                        <span class="text-dark fw-bold">@age ans</span>
+                    </p>
+
+                    <div class="d-flex gap-2">
+                        @if (Model.AnneesExperienceTotal >= 5)
+                        {
+                            <span class="badge bg-warning text-dark border rounded-pill px-3">🔥 Expert</span>
+                        }
+                        else if (Model.AnneesExperienceTotal >= 2)
+                        {
+
+                            <span class="badge bg-info text-white border rounded-pill px-3">🚀 Confirmé</span>
+                        }
+                        else
+                        {
+
+                            <span class="badge bg-success text-white border rounded-pill px-3">🌱 Junior</span>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0 d-flex flex-column gap-2 justify-content-center">
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-white border shadow-sm fw-bold">
+                            <i class="fas fa-pen me-2"></i>Éditer
+                        </a>
+                        <a href="mailto:@Model.Email" class="btn btn-primary-gradient shadow-sm fw-bold px-4">
+                            <i class="far fa-envelope me-2"></i>Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4">
 
         <div class="col-lg-4">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100 text-center">
-                <div class="card-body p-5 d-flex flex-column align-items-center">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center mb-4 shadow-sm text-white"
-                         style="width: 120px; height: 120px; font-size: 3rem; font-weight: bold; background: linear-gradient(135deg, #2af598 0%, #009efd 100%); border: 5px solid #fff;">
-                        @Model.Prenom.Substring(0, 1)@Model.Nom.Substring(0, 1)
-                    </div>
-                    <h3 class="fw-bold mb-1">@Model.Prenom @Model.Nom</h3>
-                    <p class="text-muted mb-3"><i class="fas fa-map-marker-alt me-1 text-danger"></i> @Model.Ville</p>
-
-                    <div class="mb-4">
-                        @if (Model.AnneesExperienceTotal >= 5)
-                        {
-                            <span class="badge bg-warning text-dark rounded-pill px-3">SENIOR EXPERT</span>
-                        }
-                        else if (Model.AnneesExperienceTotal >= 2)
-                        {
-
-                            <span class="badge bg-info text-white rounded-pill px-3">CONFIRMÉ</span>
-                        }
-                        else
-                        {
-
-                            <span class="badge bg-light text-secondary border rounded-pill px-3">JUNIOR</span>
-                        }
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white fw-bold py-3 border-bottom">Coordonnées</div>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item border-0 py-3 px-4 d-flex align-items-center">
+                        <div class="bg-light p-2 rounded-circle me-3 text-primary"><i class="fas fa-envelope"></i></div>
+                        <div class="text-truncate">
+                            <small class="text-muted d-block">Email</small>
+                            <a href="mailto:@Model.Email" class="text-dark text-decoration-none fw-bold">@Model.Email</a>
+                        </div>
                     </div>
 
-                    <div class="d-grid gap-2 w-100 mt-auto">
-                        <a href="mailto:@Model.Email" class="btn btn-primary-gradient shadow-sm"><i class="far fa-envelope me-2"></i>Contacter</a>
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-light border">Modifier</a>
+                    <div class="list-group-item border-0 py-3 px-4 d-flex align-items-center">
+                        <div class="bg-light p-2 rounded-circle me-3 text-success"><i class="fas fa-phone"></i></div>
+                        <div>
+                            <small class="text-muted d-block">Téléphone</small>
+                            <span class="fw-bold text-muted fst-italic">Non renseigné</span>
+                        </div>
                     </div>
+
+                    <div class="list-group-item border-0 py-3 px-4 d-flex align-items-center">
+                        <div class="bg-light p-2 rounded-circle me-3 text-danger"><i class="fas fa-file-pdf"></i></div>
+                        <div>
+                            <small class="text-muted d-block">CV / Documents</small>
+                            <span class="text-muted fst-italic">Module à venir</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div id="map" style="height: 250px; width: 100%;"></div>
+                <div class="card-footer bg-white border-top-0 py-2 text-center">
+                    <small class="text-muted"><i class="fas fa-home me-1"></i> Localisation approximative</small>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-8">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
-                <div class="card-header bg-white py-3 px-4 border-bottom">
-                    <h6 class="mb-0 fw-bold text-muted text-uppercase small">Dossier complet</h6>
-                </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-body p-4">
-
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-6">
-                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size:0.7rem">Email</small>
-                            <span class="fw-bold text-dark">@Model.Email</span>
+                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-chart-line me-2 text-primary"></i>Niveau d'Expérience</h6>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="small fw-bold text-muted me-3" style="width: 50px;">Junior</span>
+                        <div class="progress flex-grow-1" style="height: 8px; border-radius: 10px;">
+                            <div class="progress-bar bg-gradient-primary" role="progressbar" style="width: @expPercent%"></div>
                         </div>
-                        <div class="col-md-6">
-                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size:0.7rem">Âge</small>
-                            <span class="fw-bold text-dark">@(DateTime.Now.Year - Model.DateNaissance.Year) ans</span>
-                        </div>
-                        <div class="col-md-6">
-                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size:0.7rem">Expérience</small>
-                            <span class="fw-bold text-dark">@Model.AnneesExperienceTotal ans</span>
-                        </div>
+                        <span class="small fw-bold text-muted ms-3" style="width: 50px; text-align:right;">Senior</span>
                     </div>
+                    <p class="text-muted small mb-0 text-center">
+                        Ce candidat cumule <strong>@Model.AnneesExperienceTotal années</strong> d'expérience.
+                    </p>
+                </div>
+            </div>
 
-                    <div class="mb-5 rounded-3 overflow-hidden border shadow-sm position-relative">
-                        <div id="map" style="height: 200px; width: 100%; z-index: 1;"></div>
-                        <div class="position-absolute top-0 start-0 bg-white px-2 py-1 m-2 rounded shadow-sm small fw-bold" style="z-index: 999;">
-                            <i class="fas fa-home text-primary me-1"></i> Domicile
-                        </div>
-                    </div>
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="fw-bold mb-0"><i class="fas fa-layer-group me-2 text-success"></i>Stack Technique</h6>
+                    <button class="btn btn-sm btn-light text-primary fw-bold border rounded-pill px-3"
+                            data-bs-toggle="modal" data-bs-target="#modalAddSkill">
+                        <i class="fas fa-plus me-1"></i> Ajouter
+                    </button>
+                </div>
 
-                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
-                        <h6 class="text-primary fw-bold mb-0"><i class="fas fa-layer-group me-2"></i>Stack Technique</h6>
-                        <button type="button" class="btn btn-sm btn-light text-primary fw-bold border rounded-pill px-3"
-                                data-bs-toggle="modal" data-bs-target="#modalAddSkill">
-                            <i class="fas fa-plus me-1"></i> Ajouter
-                        </button>
-                    </div>
-
+                <div class="card-body p-4 bg-light bg-opacity-25">
                     @if (Model.CompetenceAcquises != null && Model.CompetenceAcquises.Any())
                     {
                         <div class="row g-3">
                             @foreach (var item in ((IEnumerable<Projet.Models.CompetenceAcquise>)Model.CompetenceAcquises).OrderByDescending(x => x.Niveau))
                             {
                                 <div class="col-md-6">
-                                    <div class="p-3 bg-light border-0 rounded-3 position-relative h-100">
+                                    <div class="bg-white p-3 rounded-3 border shadow-sm position-relative h-100">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="fw-bold text-dark">@item.Competence?.Nom</span>
                                             <form asp-action="SupprimerCompetence" method="post" class="d-inline">
@@ -106,14 +151,16 @@
                                                 </button>
                                             </form>
                                         </div>
-                                        <div class="progress" style="height: 6px;">
-                                            @{
-                                                var w = item.Niveau * 20;
-                                                var c = item.Niveau >= 4 ? "bg-success" : (item.Niveau >= 3 ? "bg-info" : "bg-warning");
-                                            }
-                                            <div class="progress-bar @c" role="progressbar" style="width: @w%"></div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-grow-1" style="height: 5px;">
+                                                @{
+                                                    var w = item.Niveau * 20;
+                                                    var c = item.Niveau >= 4 ? "bg-success" : (item.Niveau >= 3 ? "bg-info" : "bg-warning");
+                                                }
+                                                <div class="progress-bar @c" style="width: @w%"></div>
+                                            </div>
+                                            <span class="badge bg-light text-dark border small">Nv. @item.Niveau</span>
                                         </div>
-                                        <div class="text-end mt-1"><small class="text-muted" style="font-size: 0.7rem">Niveau @item.Niveau/5</small></div>
                                     </div>
                                 </div>
                             }
@@ -121,20 +168,20 @@
                     }
                     else
                     {
-                        <div class="text-center py-4 border border-dashed rounded-3 text-muted">
-                            <p class="mb-0 small">Aucune compétence technique renseignée.</p>
+                        <div class="text-center py-5 border border-dashed rounded-3 bg-white text-muted">
+                            <p class="mb-0">Aucune compétence technique renseignée.</p>
                         </div>
                     }
-
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="modalAddSkill" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%);">
                 <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2"></i>Nouvelle Compétence</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -143,8 +190,8 @@
                 <div class="modal-body p-4">
                     <input type="hidden" name="personneId" value="@Model.Id" />
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-uppercase">Compétence</label>
-                        <select name="competenceId" class="form-select form-select-lg">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Compétence</label>
+                        <select name="competenceId" class="form-select form-select-lg bg-light border-0">
                             @if (ViewBag.CompetencesDispos != null)
                             {
                                 foreach (var c in (IEnumerable<Projet.Models.Competence>)ViewBag.CompetencesDispos)
@@ -155,8 +202,8 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-uppercase">Niveau</label>
-                        <select name="niveau" class="form-select">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Niveau</label>
+                        <select name="niveau" class="form-select bg-light border-0">
                             <option value="1">1 - Débutant</option>
                             <option value="2">2 - Intermédiaire</option>
                             <option value="3">3 - Confirmé</option>
@@ -165,9 +212,9 @@
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary fw-bold px-4">Ajouter</button>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary fw-bold px-4 rounded-pill">Ajouter</button>
                 </div>
             </form>
         </div>
@@ -175,9 +222,14 @@
 </div>
 
 <style>
+    .bg-gradient-primary {
+        background: linear-gradient(90deg, #009efd 0%, #2af598 100%);
+    }
+
     .hover-red:hover {
         color: #dc3545 !important;
-    }</style>
+    }
+</style>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -185,10 +237,10 @@
         var cp = "@Html.Raw(Model.CodePostal)";
         var query = ville + " " + cp + " France";
 
-        var map = L.map('map').setView([46.603354, 1.888334], 5); // Vue France
+        var map = L.map('map', { zoomControl: false }).setView([46.603354, 1.888334], 5);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; OpenStreetMap'
         }).addTo(map);
 
         if(ville) {
@@ -198,9 +250,9 @@
                     if (data && data.length > 0) {
                         var lat = data[0].lat;
                         var lon = data[0].lon;
-                        map.setView([lat, lon], 13);
+                        map.setView([lat, lon], 12);
                         L.marker([lat, lon]).addTo(map)
-                            .bindPopup(`<b>${ville}</b><br>Domicile candidat`)
+                            .bindPopup(`<b>${ville}</b><br>Domicile`)
                             .openPopup();
                     }
                 });

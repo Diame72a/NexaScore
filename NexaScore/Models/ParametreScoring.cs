@@ -1,23 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Projet.Models;
-
-public partial class ParametreScoring
+namespace Projet.Models
 {
-    public int Id { get; set; }
+    // 1. On définit les choix possibles pour le recruteur
+    public enum NiveauExperienceCible
+    {
+        [Display(Name = "Peu importe (Plus c'est mieux)")]
+        PeuImporte = 0, // Comportement actuel par défaut
 
-    public int OffreId { get; set; }
+        [Display(Name = "Junior (0-2 ans)")]
+        Junior = 1,
 
-    public int? PoidsCompetences { get; set; }
+        [Display(Name = "Confirmé (2-5 ans)")]
+        Confirme = 2,
 
-    public int? PoidsExperience { get; set; }
+        [Display(Name = "Senior / Expert (+5 ans)")]
+        Senior = 3
+    }
 
-    public int? PoidsLocalisation { get; set; }
+    public class ParametreScoring
+    {
+        public int Id { get; set; }
+        public int OffreId { get; set; }
 
-    public bool? ExclureSiVilleDiff { get; set; }
 
-    public bool? ExclureSiExperienceManquante { get; set; }
+        public virtual Offre? Offre { get; set; }
 
-    public virtual Offre Offre { get; set; } = null!;
+
+        [Range(0, 100)]
+        public int PoidsCompetences { get; set; } = 60;
+
+        [Range(0, 100)]
+        public int PoidsExperience { get; set; } = 20;
+
+        [Range(0, 100)]
+        public int PoidsLocalisation { get; set; } = 20;
+
+
+        public bool? ExclureSiExperienceManquante { get; set; }
+
+        public bool ExclureSiVilleDiff { get; set; } = false;
+
+
+        public NiveauExperienceCible CibleExperience { get; set; } = NiveauExperienceCible.PeuImporte;
+    }
 }

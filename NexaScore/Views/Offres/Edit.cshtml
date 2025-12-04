@@ -1,5 +1,6 @@
 ﻿@using System.Linq
 @model Projet.Models.Offre
+
 @{
     ViewData["Title"] = "Modifier l'offre";
 }
@@ -9,9 +10,11 @@
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-5 rounded-4 px-4 py-3">
-            <i class="fas fa-check-circle fa-lg me-3 text-success"></i>
+            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px;">
+                <i class="fas fa-check"></i>
+            </div>
             <div>
-                <h6 class="fw-bold mb-0 text-success">Excellent !</h6>
+                <h6 class="fw-bold mb-0 text-success">Parfait !</h6>
                 <small class="text-success opacity-75">@TempData["SuccessMessage"]</small>
             </div>
         </div>
@@ -19,24 +22,36 @@
 
     <div class="d-flex align-items-center justify-content-center mb-5">
         <div class="d-flex align-items-center opacity-50">
-            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 40px; height: 40px;"><i class="fas fa-check"></i></div>
+            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                 style="width: 40px; height: 40px;">
+                <i class="fas fa-check"></i>
+            </div>
             <span class="ms-2 fw-bold text-success small text-uppercase">Informations</span>
         </div>
+
         <div class="mx-3" style="width: 100px; height: 3px; background-color: #d1e7dd; border-radius: 10px;"></div>
+
         <div class="d-flex align-items-center">
-            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 40px; height: 40px; box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2)!important;">2</div>
-            <span class="ms-2 fw-bold text-primary small text-uppercase">Compétences</span>
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                 style="width: 40px; height: 40px; box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2)!important;">
+                2
+            </div>
+            <span class="ms-2 fw-bold text-primary small text-uppercase">Compétences & Scoring</span>
         </div>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold mb-0 text-dark">Configuration</h4>
+            <h4 class="fw-bold mb-0 text-dark">Configuration de l'offre</h4>
             <small class="text-muted">Réf: #@Model.Id • @Model.Titre</small>
         </div>
         <div class="d-flex gap-2">
-            <a asp-action="Index" class="btn btn-light border rounded-pill px-4 text-muted small fw-bold"><i class="fas fa-arrow-left me-1"></i> Retour liste</a>
-            <a asp-controller="Scoring" asp-action="Calculer" asp-route-id="@Model.Id" class="btn btn-outline-primary rounded-pill small fw-bold border-2"><i class="fas fa-magic me-2"></i>Lancer Matching</a>
+            <a asp-action="Index" class="btn btn-light border rounded-pill px-4 text-muted small fw-bold">
+                <i class="fas fa-arrow-left me-1"></i> Retour liste
+            </a>
+            <a asp-controller="Scoring" asp-action="Calculer" asp-route-id="@Model.Id" class="btn btn-outline-primary rounded-pill small fw-bold border-2">
+                <i class="fas fa-magic me-2"></i>Lancer Matching
+            </a>
         </div>
     </div>
 
@@ -45,7 +60,7 @@
         <div class="col-lg-6">
             <div class="card shadow border-0 h-100 rounded-4">
                 <div class="card-header bg-white py-3 px-4 border-bottom">
-                    <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-pen me-2"></i>Informations Générales</h6>
+                    <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-pen me-2"></i>Paramètres Généraux</h6>
                 </div>
                 <div class="card-body p-4">
                     <form asp-action="Edit">
@@ -56,6 +71,7 @@
                         <div class="mb-3">
                             <label asp-for="Titre" class="form-label small fw-bold text-muted">TITRE DU POSTE</label>
                             <input asp-for="Titre" class="form-control bg-light border-0" />
+                            <span asp-validation-for="Titre" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
@@ -78,13 +94,27 @@
                             </div>
                         </div>
 
+                        <div class="mb-4 pt-3 border-top">
+                            <label asp-for="ParametreScoring.CibleExperience" class="form-label small fw-bold text-primary">CIBLE EXPÉRIENCE (SCORING)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0 text-primary"><i class="fas fa-bullseye"></i></span>
+                                <select asp-for="ParametreScoring.CibleExperience"
+                                        class="form-select bg-light border-0"
+                                        asp-items="Html.GetEnumSelectList<Projet.Models.NiveauExperienceCible>()">
+                                </select>
+                            </div>
+                            <div class="form-text small mt-1">Définit le profil idéal pour le calcul de score.</div>
+                        </div>
+
                         <div class="mb-4">
                             <label asp-for="Description" class="form-label small fw-bold text-muted">DESCRIPTION</label>
-                            <textarea asp-for="Description" class="form-control bg-light border-0" style="height: 120px"></textarea>
+                            <textarea asp-for="Description" class="form-control bg-light border-0" style="height: 100px"></textarea>
                         </div>
 
                         <div class="d-grid pt-2">
-                            <button type="submit" class="btn btn-primary-gradient shadow-sm fw-bold rounded-pill">Enregistrer</button>
+                            <button type="submit" class="btn btn-primary-gradient shadow-sm fw-bold rounded-pill">
+                                <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -95,40 +125,67 @@
             <div class="card shadow border-0 h-100 rounded-4">
                 <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
                     <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-tasks me-2"></i>Exigences Techniques</h6>
+
                     <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm" onclick="loadBulkModal(@Model.Id)">
                         <i class="fas fa-plus me-1"></i> Ajouter (Sélection)
                     </button>
                 </div>
+
                 <div class="card-body p-4 bg-light bg-opacity-25">
+
                     @if (Model.CompetenceSouhaitees != null && Model.CompetenceSouhaitees.Any())
                     {
                         <div class="d-flex flex-column gap-3">
                             @foreach (var item in Model.CompetenceSouhaitees.OrderByDescending(x => x.NiveauRequis))
                             {
                                 <div class="p-3 bg-white border-0 rounded-3 shadow-sm d-flex align-items-center justify-content-between transition-hover">
+
                                     <div class="d-flex align-items-center" style="width: 45%;">
-                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 fw-bold" style="width: 38px; height: 38px;">@item.Competence?.Nom.Substring(0, 1)</div>
+                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 fw-bold"
+                                             style="width: 38px; height: 38px;">
+                                            @item.Competence?.Nom.Substring(0, 1)
+                                        </div>
                                         <span class="fw-bold text-dark">@item.Competence?.Nom</span>
                                     </div>
+
                                     <div style="width: 40%;">
-                                        <div class="d-flex justify-content-between small mb-1"><span class="text-muted">Niveau</span><span class="fw-bold">@item.NiveauRequis/5</span></div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="text-muted text-uppercase" style="font-size: 0.65rem;">Requis</span>
+                                            <span class="fw-bold text-dark">@item.NiveauRequis/5</span>
+                                        </div>
                                         <div class="progress" style="height: 5px;">
-                                            <div class="progress-bar @(item.NiveauRequis >= 4 ? "bg-success" : "bg-primary")" style="width: @(item.NiveauRequis * 20)%"></div>
+                                            @{
+                                                var w = item.NiveauRequis * 20;
+                                                var c = item.NiveauRequis >= 4 ? "bg-danger" : (item.NiveauRequis >= 3 ? "bg-warning" : "bg-info");
+                                            }
+                                            <div class="progress-bar @c" style="width: @w%"></div>
                                         </div>
                                     </div>
-                                    <form asp-action="SupprimerCompetence" method="post">
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        <input type="hidden" name="source" value="Edit" />
-                                        <button type="submit" class="btn btn-link text-muted p-0 hover-red"><i class="fas fa-times-circle"></i></button>
-                                    </form>
+
+                                    <div class="ms-2">
+                                        <form asp-action="SupprimerCompetence" method="post">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="source" value="Edit" />
+                                            <button type="submit" class="btn btn-link text-muted p-0 opacity-50 hover-opacity-100" title="Retirer" onclick="return confirm('Supprimer cette exigence ?')">
+                                                <i class="fas fa-times-circle fa-lg"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+
                                 </div>
                             }
                         </div>
                     }
                     else
                     {
-                        <div class="text-center py-5 text-muted border border-dashed rounded-3 bg-white"><p class="small mb-0">Aucune exigence définie.</p></div>
+                        <div class="text-center py-5 text-muted h-100 d-flex flex-column justify-content-center align-items-center border border-dashed rounded-3 bg-white">
+                            <div class="mb-3 text-primary opacity-25"><i class="fas fa-layer-group fa-3x"></i></div>
+                            <h6 class="fw-bold text-dark mb-1">Aucune exigence définie</h6>
+                            <p class="small mb-3 text-muted px-4">Ajoutez des compétences pour permettre à l'algorithme de filtrer les candidats.</p>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="loadBulkModal(@Model.Id)">Ajouter maintenant</button>
+                        </div>
                     }
+
                 </div>
             </div>
         </div>
@@ -139,21 +196,36 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <h5 class="modal-title fw-bold">Sélection multiple</h5>
+                <h5 class="modal-title fw-bold"><i class="fas fa-layer-group me-2"></i>Sélection multiple</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div id="modalBulkContent"><div class="p-5 text-center"><div class="spinner-border text-primary"></div></div></div>
+            <div id="modalBulkContent">
+                <div class="p-5 text-center">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Chargement du catalogue...</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .hover-red:hover {
+    .hover-opacity-100:hover {
+        opacity: 1 !important;
         color: #dc3545 !important;
-    }</style>
+    }
+
+    .transition-hover {
+        transition: transform 0.2s;
+    }
+
+        .transition-hover:hover {
+            transform: translateX(5px);
+        }
+</style>
 
 <script>
-    // 1. Script Autocomplétion
+    // 1. Autocomplétion
     const inputVille = document.getElementById('inputVille');
     const suggestionsList = document.getElementById('suggestionsVille');
     const inputCp = document.getElementById('inputCp');
@@ -161,22 +233,23 @@
     if(inputVille) {
         inputVille.addEventListener('input', function() {
             const query = this.value;
-            if (query.length < 3) { suggestionsList.style.display = 'none'; return; }
+            if (query.length < 3) { if(suggestionsList) suggestionsList.style.display = 'none'; return; }
             fetch(`https://geo.api.gouv.fr/communes?nom=${query}&fields=nom,codesPostaux&boost=population&limit=5`)
                 .then(response => response.json())
                 .then(data => {
-                    suggestionsList.innerHTML = '';
-                    if (data.length > 0) {
-                        suggestionsList.style.display = 'block';
-                        data.forEach(ville => {
-                            const item = document.createElement('li');
-                            item.innerHTML = `<a class="dropdown-item" href="#" onclick="selectVille(event, '${ville.nom}', '${ville.codesPostaux[0]}')">${ville.nom} (${ville.codesPostaux[0]})</a>`;
-                            suggestionsList.appendChild(item);
-                        });
+                    if(suggestionsList) {
+                        suggestionsList.innerHTML = '';
+                        if (data.length > 0) {
+                            suggestionsList.style.display = 'block';
+                            data.forEach(ville => {
+                                const item = document.createElement('li');
+                                item.innerHTML = `<a class="dropdown-item" href="#" onclick="selectVille(event, '${ville.nom}', '${ville.codesPostaux[0]}')">${ville.nom} (${ville.codesPostaux[0]})</a>`;
+                                suggestionsList.appendChild(item);
+                            });
+                        } else { suggestionsList.style.display = 'none'; }
                     }
                 });
         });
-        document.addEventListener('click', function(e) { if (e.target !== inputVille) suggestionsList.style.display = 'none'; });
     }
 
     function selectVille(e, nom, cp) {
@@ -185,8 +258,9 @@
         inputCp.value = cp;
         suggestionsList.style.display = 'none';
     }
+    document.addEventListener('click', function(e) { if (e.target !== inputVille && suggestionsList) suggestionsList.style.display = 'none'; });
 
-    // 2. Script Modale Bulk
+    // 2. Bulk Modal
     function loadBulkModal(offreId) {
         var myModal = new bootstrap.Modal(document.getElementById('modalBulkAdd'));
         myModal.show();

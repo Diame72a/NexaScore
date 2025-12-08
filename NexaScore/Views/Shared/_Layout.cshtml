@@ -174,8 +174,31 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Personnes" asp-action="Index">Candidats</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Scoring" asp-action="Index">Scoring</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="scoringDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Scoring
+                            </a>
+                            <ul class="dropdown-menu animate slideIn" aria-labelledby="scoringDropdown">
+
+                                <li><h6 class="dropdown-header">Analyse Standard</h6></li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Scoring" asp-action="Index">
+                                        <i class="fas fa-tasks me-2 text-primary"></i> Scoring Classique
+                                    </a>
+                                </li>
+
+                                <li><hr class="dropdown-divider my-2"></li>
+
+                                <li><h6 class="dropdown-header">Innovation</h6></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" asp-controller="ScoringBeta" asp-action="Index">
+                                        <i class="fas fa-robot me-2 text-warning"></i>
+                                        <span>IA Matching</span>
+                                        <span class="badge bg-warning text-dark ms-auto" style="font-size: 0.6rem;">BETA</span>
+                                    </a>
+                                </li>
+
+                            </ul>
                         </li>
 
                         <li class="nav-item dropdown">

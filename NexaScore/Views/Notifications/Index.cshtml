@@ -1,0 +1,141 @@
+﻿@model IEnumerable<Projet.Models.Notification>
+
+@{
+    ViewData["Title"] = "Historique des notifications";
+    var countNonLues = Model.Count(n => !n.IsRead);
+}
+
+<style>
+    /* Design Timeline */
+    .notif-card {
+        transition: all 0.2s ease-in-out;
+        border-left: 4px solid transparent;
+    }
+
+    .notif-unread {
+        background-color: #fff;
+        border-left-color: #4e73df; /* Bleu pour non lu */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .notif-read {
+        background-color: #f8f9fa; /* Gris pour lu */
+        border-left-color: #e3e6f0;
+        opacity: 0.85;
+    }
+
+    .notif-card:hover {
+        transform: translateX(5px);
+        opacity: 1;
+    }
+
+    .icon-box {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.2rem;
+    }
+</style>
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Centre de Notifications</h2>
+            <p class="text-muted small mb-0">
+                Vous avez <strong>@countNonLues</strong> notification(s) non lue(s).
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+            @if (countNonLues > 0)
+            {
+                <form asp-action="MarkAllRead" method="post">
+                    <button type="submit" class="btn btn-outline-primary rounded-pill px-4 fw-bold">
+                        <i class="fas fa-check-double me-2"></i>Tout marquer comme lu
+                    </button>
+                </form>
+            }
+
+            @if (Model.Any())
+            {
+                <form asp-action="DeleteAll" method="post" onsubmit="return confirm('Voulez-vous vraiment effacer tout l\'historique ?');">
+                    <button type="submit" class="btn btn-light text-danger border rounded-pill px-3 fw-bold">
+                        <i class="fas fa-trash-alt me-2"></i>Tout effacer
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <div class="mb-3 text-muted opacity-25">
+                        <i class="far fa-bell-slash fa-4x"></i>
+                    </div>
+                    <h5 class="text-muted fw-bold">C'est calme par ici...</h5>
+                    <p class="text-muted small">Aucune notification dans l'historique.</p>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var item in Model)
+                    {
+                        var timeSpan = DateTime.Now - item.DateCreation;
+                        string timeAgo = timeSpan.TotalMinutes < 60 ? $"Il y a {(int)timeSpan.TotalMinutes} min"
+                        : (timeSpan.TotalHours < 24 ? $"Il y a {(int)timeSpan.TotalHours} h"
+                        : item.DateCreation.ToString("dd/MM/yyyy HH:mm"));
+
+                        <div class="card border-0 rounded-4 p-3 notif-card @(item.IsRead ? "notif-read" : "notif-unread")">
+                            <div class="d-flex align-items-center">
+
+                                <div class="flex-shrink-0 me-4">
+                                    <div class="icon-box bg-light @item.ColorClass shadow-sm">
+                                        <i class="@item.IconClass"></i>
+                                    </div>
+                                </div>
+
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="fw-bold mb-1 text-dark">
+                                            @item.Titre
+                                            @if (!item.IsRead)
+                                            {
+                                                <span class="badge bg-danger rounded-circle p-1 ms-2" style="font-size: 0.4rem; vertical-align: middle;"> </span>
+                                            }
+                                        </h6>
+                                        <small class="text-muted fw-bold" style="font-size: 0.75rem;">@timeAgo</small>
+                                    </div>
+                                    <p class="text-secondary small mb-0">@item.Message</p>
+                                </div>
+
+                                <div class="ms-4 d-flex align-items-center gap-2">
+                                    @if (!string.IsNullOrEmpty(item.LinkAction))
+                                    {
+                                        <a href="@item.LinkAction" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
+                                            Voir
+                                        </a>
+                                    }
+
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post">
+                                        <button type="submit" class="btn btn-sm btn-link text-muted hover-danger p-0" title="Supprimer">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

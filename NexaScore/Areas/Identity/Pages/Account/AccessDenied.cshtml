@@ -1,0 +1,80 @@
+﻿@page
+@model AccessDeniedModel
+@{
+    ViewData["Title"] = "Accès Refusé";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden text-center animate-up">
+
+                <div class="h-1 bg-danger" style="height: 6px; background: linear-gradient(90deg, #ff6b6b 0%, #ff8e53 100%);"></div>
+
+                <div class="card-body p-5">
+
+                    <div class="mb-4 position-relative d-inline-block">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                             style="width: 100px; height: 100px; background-color: #fff5f5; color: #ff6b6b;">
+                            <i class="fas fa-user-lock fa-4x"></i>
+                        </div>
+                        <div class="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow-sm">
+                            <i class="fas fa-times-circle text-danger fa-lg"></i>
+                        </div>
+                    </div>
+
+                    <h2 class="fw-bold text-dark mb-3" style="font-family: 'Poppins', sans-serif;">@ViewData["Title"]</h2>
+
+                    <p class="text-muted mb-4">
+                        Désolé, vous n'avez pas les droits nécessaires pour accéder à cette ressource.
+                        <br>Cette zone est réservée aux <strong>Administrateurs</strong>.
+                    </p>
+
+                    <div class="d-grid gap-3">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-lg rounded-pill fw-bold text-white shadow-sm hover-scale"
+                           style="background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); border:none;">
+                            <i class="fas fa-arrow-left me-2"></i> Retour à l'accueil
+                        </a>
+
+                        <a asp-page="./Logout" asp-route-returnUrl="/" class="btn btn-light rounded-pill fw-bold text-muted border-0">
+                            <i class="fas fa-sign-out-alt me-2"></i> Se déconnecter / Changer de compte
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <span class="badge bg-light text-secondary border rounded-pill px-3 py-2 font-monospace">
+                    <i class="fas fa-shield-alt me-1"></i> Erreur 403 : Forbidden
+                </span>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+
+    .animate-up {
+        animation: slideUpFade 0.5s ease-out forwards;
+    }
+
+    @@keyframes slideUpFade {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hover-scale:hover {
+        transform: scale(1.02);
+        transition: transform 0.2s;
+    }
+</style>

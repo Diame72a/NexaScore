@@ -1,33 +1,49 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Projet.Models; // C'est CA qui permet de voir le fichier qu'on vient de créer
+using Projet.Models;
+using Projet.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ProjetContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-// Add services to the container.
+    options.UseSqlServer(connectionString));
+
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+{
+    
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 4;
+})
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<ProjetContext>();
+
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
 
-app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 app.UseRouting();
 
-app.UseAuthorization();
 
-app.MapStaticAssets();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
+
+app.MapRazorPages();
 
 app.Run();

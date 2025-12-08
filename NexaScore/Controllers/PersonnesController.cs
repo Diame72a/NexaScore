@@ -3,23 +3,31 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Projet.Models;
+using Projet.Services; // IMPORTANT : Indispensable pour trouver INotificationService
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Projet.Controllers
 {
+    [Authorize]
     public class PersonnesController : Controller
     {
         private readonly ProjetContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly INotificationService _notifService; // <--- 1. DÉCLARATION ICI
 
-        public PersonnesController(ProjetContext context, IWebHostEnvironment webHostEnvironment)
+        // 2. INJECTION DANS LE CONSTRUCTEUR
+        public PersonnesController(ProjetContext context,
+                                   IWebHostEnvironment webHostEnvironment,
+                                   INotificationService notifService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _notifService = notifService; // <--- 3. ASSIGNATION ICI
         }
 
         // ============================================================
@@ -74,7 +82,6 @@ namespace Projet.Controllers
         {
             ModelState.Remove("CompetenceAcquises");
 
-            // Validation DateOnly
             var today = DateOnly.FromDateTime(DateTime.Now);
             if (personne.DateNaissance > today)
                 ModelState.AddModelError("DateNaissance", "La date de naissance ne peut pas être dans le futur.");
@@ -83,6 +90,16 @@ namespace Projet.Controllers
             {
                 _context.Add(personne);
                 await _context.SaveChangesAsync();
+
+                // 4. UTILISATION DU SERVICE (NOTIFICATION AUTOMATIQUE)
+                await _notifService.Ajouter(
+                    "Nouveau Candidat",
+                    $"{personne.Prenom} {personne.Nom} a rejoint le vivier.",
+                    "fas fa-user-plus",
+                    "text-success",
+                    Url.Action("Details", "Personnes", new { id = personne.Id })
+                );
+
                 TempData["SuccessMessage"] = "Profil créé ! Complétez maintenant les informations.";
                 return RedirectToAction(nameof(Edit), new { id = personne.Id });
             }
@@ -107,7 +124,6 @@ namespace Projet.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // Ajout des paramètres IFormFile pour les fichiers
         public async Task<IActionResult> Edit(int id, Personne personne,
                                               IFormFile? fileProfil,
                                               IFormFile? fileBanniere,
@@ -116,7 +132,6 @@ namespace Projet.Controllers
             if (id != personne.Id) return NotFound();
 
             ModelState.Remove("CompetenceAcquises");
-            // Important : on retire ces champs du binding pour éviter les erreurs de validation
             ModelState.Remove("fileProfil");
             ModelState.Remove("fileBanniere");
             ModelState.Remove("fileCv");
@@ -148,7 +163,7 @@ namespace Projet.Controllers
                     }
                     // -----------------------
 
-                    // Mise à jour des champs texte
+                    // Mise à jour des champs
                     original.Nom = personne.Nom;
                     original.Prenom = personne.Prenom;
                     original.Email = personne.Email;
@@ -162,6 +177,9 @@ namespace Projet.Controllers
 
                     _context.Update(original);
                     await _context.SaveChangesAsync();
+
+                    // Optionnel : Notifier lors d'une modif importante
+                    // await _notifService.Ajouter("Profil mis à jour", $"Le dossier de {personne.Nom} a été modifié.", "fas fa-pen", "text-primary");
 
                     TempData["SuccessMessage"] = "Profil et fichiers mis à jour avec succès.";
                     return RedirectToAction(nameof(Edit), new { id = personne.Id });

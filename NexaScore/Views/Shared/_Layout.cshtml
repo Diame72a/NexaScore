@@ -9,139 +9,286 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: url('/img/background.png'); 
+            background-size: cover; 
+            background-position: center top; 
+            background-repeat: no-repeat;
+            background-attachment: fixed; 
+            padding-top: 80px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(248, 249, 250, 0.90);
+                z-index: -1; 
+            }
+
+
+        .navbar-smart {
+            background-color: #001e40; 
+            padding: 0.4rem 0; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-family: 'Inter', sans-serif;
+        }
+
+        
+        .brand-text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important; 
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem !important;
+            transition: color 0.2s ease;
+        }
+
+            
+            .navbar-nav .nav-link:hover, .navbar-nav .nav-link.show {
+                color: #ffffff !important;
+            }
+
+        
+        .dropdown-menu {
+            border: none;
+            border-radius: 8px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
+            padding: 1rem;
+            margin-top: 12px !important; 
+            background-color: #fff;
+            min-width: 220px;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+            
+            .dropdown-menu::before {
+                content: '';
+                position: absolute;
+                top: -6px;
+                left: 20px;
+                width: 12px;
+                height: 12px;
+                background-color: #fff;
+                transform: rotate(45deg);
+                border-radius: 2px;
+                box-shadow: -2px -2px 5px rgba(0,0,0,0.04);
+            }
+
+        
+        .dropdown-header {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #94a3b8; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 0.5rem 0.5rem 0.5rem;
+            margin-bottom: 0.2rem;
+        }
+
+        
+        .dropdown-item {
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            color: #334155;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .dropdown-item:hover {
+                background-color: #f8fafc; 
+                color: #0f172a; 
+            }
+
+            .dropdown-item i {
+                color: #4e73df; 
+                width: 20px;
+                margin-right: 8px;
+            }
+
+        
+        body {
+            padding-top: 70px; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f9fa;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm fixed-top">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-smart">
             <div class="container">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-rocket me-2"></i>NexaScore™
+
+                <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-rocket me-2" style="color: #38bdf8;"></i> <span class="brand-text">NexaScore</span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
-                    <span class="navbar-toggler-icon"></span>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <i class="fas fa-bars text-white"></i>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse">
+
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index"><i class="fas fa-home me-1"></i> Dashboard</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Offres" asp-action="Index"><i class="fas fa-briefcase me-1"></i> Offres</a>
+                            <a class="nav-link" asp-controller="Offres" asp-action="Index">Offres</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Personnes" asp-action="Index"><i class="fas fa-users me-1"></i> Candidats</a>
+                            <a class="nav-link" asp-controller="Personnes" asp-action="Index">Candidats</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Scoring" asp-action="Index"><i class="fas fa-magic me-1"></i> Scoring</a>
+                            <a class="nav-link" asp-controller="Scoring" asp-action="Index">Scoring</a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                Référentiels
+                            </a>
+                            <ul class="dropdown-menu animate slideIn">
+                                <li><h6 class="dropdown-header">Gestion des Données</h6></li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Postes" asp-action="Index">
+                                        <i class="fas fa-briefcase"></i> Postes & Métiers
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Competences" asp-action="Index">
+                                        <i class="fas fa-tags"></i> Compétences
+                                    </a>
+                                </li>
+
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li><hr class="dropdown-divider my-2"></li>
+                                    <li><h6 class="dropdown-header">Configuration</h6></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Index">
+                                            <i class="fas fa-database"></i> Administration BDD
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
                         </li>
                     </ul>
 
-                    <ul class="navbar-nav align-items-center">
-                        <li class="nav-item me-3">
-                            <a class="nav-link position-relative" href="#">
-                                <i class="far fa-bell fa-lg"></i>
-                                <span class="position-absolute top-10 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                                    <span class="visually-hidden">New alerts</span>
-                                </span>
-                            </a>
+                    <ul class="navbar-nav align-items-center gap-3">
+
+                        <li class="nav-item">
+                            @await Component.InvokeAsync("Notifications")
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size:0.8rem;">
-                                    RH
-                                </div>
-                                <span class="d-none d-md-inline small fw-bold">Mon Compte</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                                <li><a class="dropdown-item small" href="#">Paramètres</a></li>
-                                <li><a class="dropdown-item small" href="#">Abonnement</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item small text-danger" href="#">Déconnexion</a></li>
-                            </ul>
-                        </li>
+
+                        <partial name="_LoginPartial" />
+
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
 
-    <div class="main-content-wrapper">
-        <div class="container" style="margin-top: 80px;">
-            <main role="main" class="pb-3">
-                @RenderBody()
-            </main>
+    <main class="flex-grow-1">
+        <div class="container py-4">
+            @RenderBody()
         </div>
-    </div>
+    </main>
 
-    <footer>
+    <footer class="py-5" style="background-color: #1a1c23; color: #a0aec0; font-size: 0.9rem; margin-top: auto;">
         <div class="container">
             <div class="row gy-4">
+
                 <div class="col-lg-4 col-md-6">
-                    <h5 class="footer-heading text-white">NexaScore™</h5>
-                    <p class="small text-white-50">
+                    <h5 class="fw-bold text-white mb-3" style="font-family: 'Poppins', sans-serif;">NexaScore™</h5>
+                    <p class="small opacity-75">
                         La solution de recrutement augmentée.
-                        Optimisez vos processus RH et trouvez les meilleurs talents instantanément.
+                        Optimisez vos processus RH grâce au scoring intelligent.
                     </p>
-                    <div class="mt-3">
-                        <a href="#" class="me-3 text-white-50"><i class="fab fa-linkedin fa-lg"></i></a>
-                        <a href="#" class="me-3 text-white-50"><i class="fab fa-twitter fa-lg"></i></a>
-                        <a href="#" class="me-3 text-white-50"><i class="fab fa-github fa-lg"></i></a>
+                    <div class="mt-4 d-flex gap-3">
+                        <a href="https://github.com/Diame72a/NexaScore" target="_blank" class="text-white opacity-50 hover-opacity-100 transition">
+                            <i class="fab fa-github fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-white opacity-50 hover-opacity-100 transition">
+                            <i class="fab fa-linkedin fa-lg"></i>
+                        </a>
+                        <a href="#" class="text-white opacity-50 hover-opacity-100 transition">
+                            <i class="fab fa-twitter fa-lg"></i>
+                        </a>
                     </div>
                 </div>
 
                 <div class="col-lg-2 col-md-3 col-6">
-                    <h5 class="footer-heading text-white">Produit</h5>
-                    <ul class="list-unstyled small">
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Fonctionnalités</a></li>
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Tarifs</a></li>
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">API</a></li>
+                    <h6 class="text-uppercase fw-bold text-white mb-3 small" style="letter-spacing: 1px;">Produit</h6>
+                    <ul class="list-unstyled small gap-2 d-flex flex-column">
+                        <li><a href="#" class="text-reset text-decoration-none hover-white">Fonctionnalités</a></li>
+                        <li><a href="#" class="text-reset text-decoration-none hover-white">Tarifs</a></li>
+                        <li><a href="#" class="text-reset text-decoration-none hover-white">API</a></li>
                     </ul>
                 </div>
 
                 <div class="col-lg-2 col-md-3 col-6">
-                    <h5 class="footer-heading text-white">Entreprise</h5>
-                    <ul class="list-unstyled small">
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">À propos</a></li>
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Carrières</a></li>
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Blog</a></li>
+                    <h6 class="text-uppercase fw-bold text-white mb-3 small" style="letter-spacing: 1px;">Projet</h6>
+                    <ul class="list-unstyled small gap-2 d-flex flex-column">
+                        <li><a href="https://github.com/Diame72a/NexaScore/commits/" target="_blank" class="text-reset text-decoration-none hover-white">Historique (Commits)</a></li>
+                        <li><a href="#" class="text-reset text-decoration-none hover-white">Documentation</a></li>
+                        <li><a href="#" class="text-reset text-decoration-none hover-white">Licence</a></li>
                     </ul>
                 </div>
 
                 <div class="col-lg-4 col-md-12">
-                    <h5 class="footer-heading text-white">Nous contacter</h5>
-                    <p class="small text-white-50">Une question ? Notre équipe support est à votre disposition.</p>
-
+                    <h6 class="text-uppercase fw-bold text-white mb-3 small" style="letter-spacing: 1px;">Contact</h6>
                     <ul class="list-unstyled small text-white-50">
-                        <li class="mb-3 d-flex align-items-start">
-                            <i class="fas fa-map-marker-alt me-3 mt-1 text-primary"></i>
-                            <span>165 Avenue de Bretagne<br>59000 Lille</span>
-                        </li>
-                        <li class="mb-3">
-                            <i class="fas fa-envelope me-3 text-primary"></i>
-                            <a href="mailto:support@nexascrore.com" class="text-white-50 text-decoration-none">support@nexascore.com</a>
-                        </li>
-                        <li class="mb-3">
-                            <i class="fas fa-phone me-3 text-primary"></i>
-                            <a href="tel:+33320000000" class="text-white-50 text-decoration-none">+33 3 20 00 00 00</a>
-                        </li>
+                        <li class="mb-2"><i class="fas fa-envelope me-2 text-primary"></i> contact@nexascore.com</li>
+                        <li class="mb-2"><i class="fas fa-code-branch me-2 text-primary"></i> v1.0.0 (Bêta)</li>
+                        <li><i class="fas fa-map-marker-alt me-2 text-primary"></i> Lille, France</li>
                     </ul>
                 </div>
             </div>
 
-            <hr style="border-color: #4a5568; margin: 2rem 0;">
+            <hr class="my-4 border-secondary opacity-25">
 
-            <div class="row align-items-center small text-white-50">
+            <div class="row align-items-center small opacity-50">
                 <div class="col-md-6 text-center text-md-start">
-                    &copy; Site Web de Scoring par Axel SOBKOWIAK.
-                    &copy; 2025 NexaScore™. Tous droits réservés. 
-                    
+                    &copy; @DateTime.Now.Year NexaScore™. Développé par <span class="text-white">Axel SOBKOWIAK</span>.
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <a href="#" class="me-3 text-white-50 text-decoration-none">Confidentialité</a>
-                    <a href="#" class="text-white-50 text-decoration-none">Conditions</a>
+                    <a href="#" class="me-3 text-reset text-decoration-none hover-white">Mentions Légales</a>
+                    <a href="#" class="text-reset text-decoration-none hover-white">Politique de Confidentialité</a>
                 </div>
             </div>
         </div>

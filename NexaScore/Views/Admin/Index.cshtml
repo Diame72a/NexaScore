@@ -1,0 +1,89 @@
+﻿@{
+    ViewData["Title"] = "Administration BDD";
+}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-lg"
+             style="width: 80px; height: 80px; background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); color: white;">
+            <i class="fas fa-server fa-3x"></i>
+        </div>
+        <h2 class="fw-bold text-dark" style="font-family: 'Poppins', sans-serif;">Console d'Administration</h2>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4 fw-bold">
+            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning border-0 shadow-sm rounded-4 mb-4 fw-bold">
+            <i class="fas fa-exclamation-triangle me-2"></i> @TempData["Warning"]
+        </div>
+    }
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100 rounded-4 p-4 text-center"><h2 class="fw-bold text-primary mb-0">@ViewBag.CountCandidats</h2><small class="text-muted fw-bold">CANDIDATS</small></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100 rounded-4 p-4 text-center"><h2 class="fw-bold text-info mb-0">@ViewBag.CountOffres</h2><small class="text-muted fw-bold">OFFRES</small></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100 rounded-4 p-4 text-center"><h2 class="fw-bold text-success mb-0">@ViewBag.CountCompetences</h2><small class="text-muted fw-bold">COMPÉTENCES</small></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100 rounded-4 p-4 text-center"><h2 class="fw-bold text-warning mb-0">@ViewBag.CountPostes</h2><small class="text-muted fw-bold">POSTES</small></div></div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg h-100 rounded-4 overflow-hidden border-top border-4 border-primary">
+                <div class="card-body p-5">
+                    <h4 class="fw-bold text-dark mb-4"><i class="fas fa-magic text-primary me-2"></i>Générateur de Données</h4>
+
+                    <form asp-action="SeedData" method="post">
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="small fw-bold text-muted">CANDIDATS (+)</label>
+                                <input type="number" name="nbCandidats" class="form-control bg-light border-0 fw-bold" value="30" min="0" max="500">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold text-muted">OFFRES (+)</label>
+                                <input type="number" name="nbOffres" class="form-control bg-light border-0 fw-bold" value="10" min="0" max="200">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="small fw-bold text-muted">COMPÉTENCES (+)</label>
+                                <input type="number" name="nbCompetences" class="form-control bg-light border-0 fw-bold" value="5" min="0" max="100">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold text-muted">POSTES (+)</label>
+                                <input type="number" name="nbPostes" class="form-control bg-light border-0 fw-bold" value="5" min="0" max="100">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm"
+                                style="background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); border:none;">
+                            <i class="fas fa-play me-2"></i> AJOUTER LES DONNÉES
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg h-100 rounded-4 overflow-hidden border-top border-4 border-danger">
+                <div class="card-body p-5 text-center d-flex flex-column justify-content-center">
+                    <div class="mb-3 text-danger"><i class="fas fa-bomb fa-3x"></i></div>
+                    <h4 class="fw-bold">Zone Rouge</h4>
+                    <p class="small text-muted mb-4">Tout supprimer pour repartir de zéro.</p>
+                    <form asp-action="ClearData" method="post" onsubmit="return confirm('TOUT SUPPRIMER ?');">
+                        <button class="btn btn-outline-danger w-100 rounded-pill fw-bold py-2">TOUT VIDER</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

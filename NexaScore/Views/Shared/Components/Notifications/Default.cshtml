@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Projet.Models.Notification>
+
+@{
+    var nonLues = Model.Count(n => !n.IsRead);
+}
+
+<li class="nav-item dropdown no-arrow mx-1">
+    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-bell fa-fw"></i>
+        @if (nonLues > 0)
+        {
+            <span class="badge bg-danger badge-counter rounded-pill" style="font-size: 0.6rem; position: absolute; top: 0; right: 0;">
+                @nonLues+
+            </span>
+        }
+    </a>
+
+    <div class="dropdown-list dropdown-menu dropdown-menu-end shadow animated--grow-in border-0" aria-labelledby="alertsDropdown" style="width: 320px;">
+        <h6 class="dropdown-header bg-primary text-white fw-bold py-2 px-3 rounded-top">
+            Centre de Notifications
+        </h6>
+
+        @if (!Model.Any())
+        {
+            <div class="p-4 text-center text-muted small">
+                <i class="far fa-bell-slash mb-2"></i><br>
+                Aucune notification
+            </div>
+        }
+        else
+        {
+            @foreach (var notif in Model)
+            {
+                <a class="dropdown-item d-flex align-items-center py-3 border-bottom @(notif.IsRead ? "bg-white" : "bg-light")"
+                   href="@(notif.LinkAction ?? "#")">
+                    <div class="me-3">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center @notif.ColorClass" style="width: 40px; height: 40px;">
+                            <i class="@notif.IconClass"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="small text-gray-500">@notif.DateCreation.ToString("dd MMM à HH:mm")</div>
+                        <span class="fw-bold d-block text-dark" style="font-size: 0.85rem;">@notif.Titre</span>
+                        <span class="small text-muted text-truncate d-block" style="max-width: 200px;">@notif.Message</span>
+                    </div>
+                </a>
+            }
+            <a class="dropdown-item text-center small text-gray-500 py-2 fw-bold bg-light"
+               asp-controller="Notifications" asp-action="Index">
+                Voir tout l'historique <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        }
+    </div>
+</li>

@@ -2,43 +2,45 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Projet.Models;
+using Projet.Services; // IMPORTANT
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Projet.Controllers
 {
+    [Authorize]
     public class OffresController : Controller
     {
         private readonly ProjetContext _context;
+        private readonly INotificationService _notifService;
 
-        public OffresController(ProjetContext context)
+        public OffresController(ProjetContext context, INotificationService notifService)
         {
             _context = context;
+            _notifService = notifService;
         }
 
         // ============================================================
-        // 1. INDEX (LISTE AVEC FILTRES)
+        // 1. INDEX (LISTE AVEC FILTRES & DASHBOARD)
         // ============================================================
         public async Task<IActionResult> Index(string searchString, int? posteId)
         {
             var query = _context.Offres.Include(o => o.Poste).AsQueryable();
 
-            // Filtres
             if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(o => o.Titre.Contains(searchString) || o.VilleCible.Contains(searchString));
             }
+
             if (posteId.HasValue)
             {
                 query = query.Where(o => o.PosteId == posteId);
             }
 
             var offres = await query.OrderByDescending(o => o.DateCreation).ToListAsync();
-
-            // Data pour la Vue
-            ViewBag.Postes = await _context.Postes.OrderBy(p => p.Intitule).ToListAsync();
 
             // Stats pour le graphique (Répartition Géo)
             var statsVilles = offres
@@ -48,6 +50,10 @@ namespace Projet.Controllers
 
             ViewBag.VillesLabels = statsVilles.Select(s => s.Ville).ToList();
             ViewBag.VillesData = statsVilles.Select(s => s.Nombre).ToList();
+
+            // Data pour la Vue
+            ViewBag.Postes = await _context.Postes.OrderBy(p => p.Intitule).ToListAsync();
+            ViewBag.TotalCandidats = await _context.Personnes.CountAsync(); // KPI Vivier
 
             ViewData["CurrentFilter"] = searchString;
             ViewData["CurrentPoste"] = posteId;
@@ -60,33 +66,43 @@ namespace Projet.Controllers
         // ============================================================
         public IActionResult Create()
         {
-            ViewData["PosteId"] = new SelectList(_context.Postes, "Id", "Intitule");
+            ViewBag.PosteId = new SelectList(_context.Postes, "Id", "Intitule");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Titre,Description,VilleCible,CodePostalCible,PosteId")] Offre offre)
+        public async Task<IActionResult> Create(Offre offre)
         {
             offre.DateCreation = DateTime.Now;
-            ModelState.Remove("Poste"); // On ignore l'objet de navigation
+            ModelState.Remove("Poste");
+            ModelState.Remove("CompetenceSouhaitees"); // Étape 2
 
             if (ModelState.IsValid)
             {
+                // 1. Création de l'offre
                 _context.Add(offre);
                 await _context.SaveChangesAsync();
 
-                // Création automatique des paramètres de scoring par défaut
+                // 2. Création des paramètres de scoring par défaut
                 var paramsScoring = new ParametreScoring { OffreId = offre.Id };
                 _context.Add(paramsScoring);
                 await _context.SaveChangesAsync();
 
-                // Redirection vers Edit (Étape 2)
-                TempData["SuccessMessage"] = "Offre créée ! Définissez maintenant les compétences et le profil cible.";
+                // 3. Notification Automatique
+                await _notifService.Ajouter(
+                    "Nouvelle Offre",
+                    $"Le poste '{offre.Titre}' a été ouvert.",
+                    "fas fa-briefcase",
+                    "text-primary",
+                    Url.Action("Details", "Offres", new { id = offre.Id })
+                );
+
+                TempData["SuccessMessage"] = "Offre créée ! Définissez maintenant les compétences.";
                 return RedirectToAction(nameof(Edit), new { id = offre.Id });
             }
 
-            ViewData["PosteId"] = new SelectList(_context.Postes, "Id", "Intitule", offre.PosteId);
+            ViewBag.PosteId = new SelectList(_context.Postes, "Id", "Intitule", offre.PosteId);
             return View(offre);
         }
 
@@ -99,15 +115,14 @@ namespace Projet.Controllers
 
             var offre = await _context.Offres
                 .Include(o => o.CompetenceSouhaitees).ThenInclude(cs => cs.Competence)
-                .Include(o => o.ParametreScoring) // IMPORTANT : Charger les réglages
+                .Include(o => o.ParametreScoring)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (offre == null) return NotFound();
 
-            // Si pas de paramètres (offres anciennes), on en crée en mémoire pour l'affichage
             if (offre.ParametreScoring == null) offre.ParametreScoring = new ParametreScoring();
 
-            ViewData["PosteId"] = new SelectList(_context.Postes, "Id", "Intitule", offre.PosteId);
+            ViewBag.PosteId = new SelectList(_context.Postes, "Id", "Intitule", offre.PosteId);
             return View(offre);
         }
 
@@ -118,7 +133,8 @@ namespace Projet.Controllers
             if (id != offre.Id) return NotFound();
 
             ModelState.Remove("Poste");
-            ModelState.Remove("ParametreScoring.Offre"); // Évite validation circulaire
+            ModelState.Remove("CompetenceSouhaitees");
+            ModelState.Remove("ParametreScoring.Offre");
 
             if (ModelState.IsValid)
             {
@@ -130,45 +146,41 @@ namespace Projet.Controllers
 
                     if (original == null) return NotFound();
 
-                    // 1. Update champs classiques
+                    // Update champs classiques
                     original.Titre = offre.Titre;
                     original.Description = offre.Description;
                     original.VilleCible = offre.VilleCible;
                     original.CodePostalCible = offre.CodePostalCible;
                     original.PosteId = offre.PosteId;
 
-                    // 2. Update Paramètres Scoring (Le cœur de l'intelligence)
+                    // Update Paramètres Scoring
                     if (original.ParametreScoring == null)
                     {
                         original.ParametreScoring = new ParametreScoring { OffreId = original.Id };
                     }
 
-                    // Mise à jour des valeurs depuis le formulaire
                     if (offre.ParametreScoring != null)
                     {
                         original.ParametreScoring.CibleExperience = offre.ParametreScoring.CibleExperience;
-                        // Tu peux ajouter ici les autres poids si tu les as mis dans la vue
-                        // original.ParametreScoring.PoidsCompetences = ...
                     }
 
                     _context.Update(original);
                     await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Configuration sauvegardée.";
                 }
                 catch (DbUpdateConcurrencyException) { throw; }
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Edit), new { id = id }); // Reste sur la page pour continuer
             }
 
-            // Rechargement en cas d'erreur
-            ViewData["PosteId"] = new SelectList(_context.Postes, "Id", "Intitule", offre.PosteId);
+            ViewBag.PosteId = new SelectList(_context.Postes, "Id", "Intitule", offre.PosteId);
             return View(offre);
         }
 
         // ============================================================
-        // 4. GESTION DES COMPÉTENCES (AJOUTS / SUPPRESSIONS)
+        // 4. GESTION DES COMPÉTENCES (MODALE AJAX)
         // ============================================================
-
-        // Affiche la modale AJAX
         [HttpGet]
         public async Task<IActionResult> AjouterPlusieurs(int id)
         {
@@ -177,7 +189,9 @@ namespace Projet.Controllers
 
             var idsExistants = offre.CompetenceSouhaitees.Select(c => c.CompetenceId).ToList();
             var competencesDispo = await _context.Competences
-                .Where(c => !idsExistants.Contains(c.Id)).OrderBy(c => c.Nom).ToListAsync();
+                .Where(c => !idsExistants.Contains(c.Id))
+                .OrderBy(c => c.Nom)
+                .ToListAsync();
 
             var model = new OffreBulkCompetenceViewModel
             {
@@ -187,13 +201,12 @@ namespace Projet.Controllers
                     CompetenceId = c.Id,
                     Nom = c.Nom,
                     EstSelectionne = false,
-                    NiveauRequis = 3
+                    NiveauRequis = 3 // Niveau par défaut (intermédiaire)
                 }).ToList()
             };
             return PartialView("_AjoutMultiplePartial", model);
         }
 
-        // Traite le formulaire de la modale
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AjouterPlusieurs(OffreBulkCompetenceViewModel model)
@@ -215,7 +228,6 @@ namespace Projet.Controllers
             return RedirectToAction(nameof(Edit), new { id = model.OffreId });
         }
 
-        // Supprime une compétence
         [HttpPost]
         public async Task<IActionResult> SupprimerCompetence(int id, string source)
         {
@@ -226,9 +238,7 @@ namespace Projet.Controllers
                 _context.CompetenceSouhaitees.Remove(liaison);
                 await _context.SaveChangesAsync();
 
-                if (source == "Edit")
-                    return RedirectToAction(nameof(Edit), new { id = offreId }); // + ancre si besoin
-
+                if (source == "Edit") return RedirectToAction(nameof(Edit), new { id = offreId });
                 return RedirectToAction(nameof(Details), new { id = offreId });
             }
             return RedirectToAction(nameof(Index));
@@ -262,7 +272,20 @@ namespace Projet.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var offre = await _context.Offres.FindAsync(id);
-            if (offre != null) { _context.Offres.Remove(offre); await _context.SaveChangesAsync(); }
+            if (offre != null)
+            {
+                string titre = offre.Titre;
+                _context.Offres.Remove(offre);
+                await _context.SaveChangesAsync();
+
+                // Notification suppression
+                await _notifService.Ajouter(
+                    "Offre Supprimée",
+                    $"Le poste '{titre}' a été retiré.",
+                    "fas fa-trash",
+                    "text-danger"
+                );
+            }
             return RedirectToAction(nameof(Index));
         }
     }

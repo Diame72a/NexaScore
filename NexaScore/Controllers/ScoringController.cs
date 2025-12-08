@@ -1,20 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Projet.Models;
-using System;
-using System.Collections.Generic;
+using Projet.Services; 
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Projet.Controllers
 {
+    [Authorize]
     public class ScoringController : Controller
     {
         private readonly ProjetContext _context;
+        private readonly INotificationService _notifService; // 1. Déclaration
 
-        public ScoringController(ProjetContext context)
+        // 2. Injection
+        public ScoringController(ProjetContext context, INotificationService notifService)
         {
             _context = context;
+            _notifService = notifService;
         }
 
         // ============================================================
@@ -39,13 +44,13 @@ namespace Projet.Controllers
         // ============================================================
         // 2. CALCULER (Cœur du système de Matching)
         // ============================================================
-        public IActionResult Calculer(int id)
+        public async Task<IActionResult> Calculer(int id)
         {
             // --- 1. CHARGEMENT DES DONNÉES ---
-            var offre = _context.Offres
+            var offre = await _context.Offres
                 .Include(o => o.CompetenceSouhaitees).ThenInclude(cs => cs.Competence)
                 .Include(o => o.ParametreScoring)
-                .FirstOrDefault(o => o.Id == id);
+                .FirstOrDefaultAsync(o => o.Id == id);
 
             if (offre == null) return NotFound();
 
@@ -54,9 +59,9 @@ namespace Projet.Controllers
             int poidsExp = offre.ParametreScoring?.PoidsExperience ?? 20;
             int poidsLoc = offre.ParametreScoring?.PoidsLocalisation ?? 20;
 
-            var candidats = _context.Personnes
+            var candidats = await _context.Personnes
                 .Include(p => p.CompetenceAcquises).ThenInclude(ca => ca.Competence)
-                .ToList();
+                .ToListAsync();
 
             var resultats = new List<CandidateMatchViewModel>();
 
@@ -75,9 +80,7 @@ namespace Projet.Controllers
                     DetailsNegatifs = new List<string>()
                 };
 
-                // ==================================================
                 // A. SCORE COMPÉTENCES
-                // ==================================================
                 double totalPointsCompetences = 0;
                 double maxPointsCompetences = 0;
 
@@ -86,7 +89,7 @@ namespace Projet.Controllers
                     maxPointsCompetences += 100;
                     vm.ChartLabels.Add(compRequise.Competence?.Nom ?? "?");
 
-                    int niveauRequisInt = compRequise.NiveauRequis ?? 1;
+                    int niveauRequisInt = compRequise.NiveauRequis ?? 0;
                     vm.ChartDataOffre.Add(niveauRequisInt);
 
                     var compCandidat = candidat.CompetenceAcquises
@@ -101,7 +104,7 @@ namespace Projet.Controllers
 
                         if (ratio > 1)
                         {
-                            ratio = 1.1; // Petit bonus pour l'expertise
+                            ratio = 1.1; 
                             vm.DetailsPositifs.Add($"{compRequise.Competence?.Nom} (Expertise sup.)");
                         }
                         else if (ratio >= 1)
@@ -123,105 +126,76 @@ namespace Projet.Controllers
                     }
                 }
 
-                // Calcul score compétences sur 100
+                
                 double scoreBrutComp = (maxPointsCompetences > 0)
                     ? (totalPointsCompetences / maxPointsCompetences) * 100
                     : 100;
 
                 vm.ScoreCompetences = (int)scoreBrutComp;
 
-
-                // ==================================================
-                // B. SCORE EXPÉRIENCE (LOGIQUE FOURCHETTE 0-2 ans)
-                // ==================================================
+                
                 int scoreBrutExp = 0;
                 int xpCandidat = candidat.AnneesExperienceTotal ?? 0;
-
-                // Récupération de l'objectif (Enum)
                 var niveauCible = offre.ParametreScoring?.CibleExperience ?? NiveauExperienceCible.PeuImporte;
 
                 int minRequis = 0;
                 int maxRequis = 0;
                 bool checkSurqualification = false;
 
-                // Configuration des bornes selon le profil
                 switch (niveauCible)
                 {
                     case NiveauExperienceCible.Junior:
-                        minRequis = 0;  // Accepte débutant complet
-                        maxRequis = 2;  // Jusqu'à 2 ans inclus (0, 1, 2 = 100%)
-                        checkSurqualification = true; // Activer le piège à Seniors
+                        minRequis = 0; maxRequis = 2; checkSurqualification = true;
                         break;
-
                     case NiveauExperienceCible.Confirme:
-                        minRequis = 3;
-                        maxRequis = 5;
+                        minRequis = 3; maxRequis = 5;
                         break;
-
                     case NiveauExperienceCible.Senior:
-                        minRequis = 6;
-                        maxRequis = 99; // Pas de limite haute
+                        minRequis = 6; maxRequis = 99;
                         break;
-
-                    default: // PeuImporte
-                        minRequis = 0;
-                        maxRequis = 99;
+                    default:
+                        minRequis = 0; maxRequis = 99;
                         break;
                 }
 
-                // Calcul mathématique
                 if (niveauCible == NiveauExperienceCible.PeuImporte)
                 {
-                    // Ancienne logique (Plus c'est mieux)
                     if (xpCandidat >= 5) scoreBrutExp = 100;
                     else if (xpCandidat >= 2) scoreBrutExp = 70;
                     else scoreBrutExp = 40;
                 }
                 else
                 {
-                    // --- CAS 1 : DANS LA CIBLE (MATCH PARFAIT) ---
-                    // Ex: Junior (0-2) et Candidat a 0, 1 ou 2 ans -> 100%
                     if (xpCandidat >= minRequis && xpCandidat <= maxRequis)
                     {
                         scoreBrutExp = 100;
                         vm.DetailsPositifs.Add($"Expérience idéale ({xpCandidat} ans)");
                     }
-                    // --- CAS 2 : SOUS-QUALIFIÉ ---
-                    // Ex: Confirmé (min 3) et Candidat a 1 an
                     else if (xpCandidat < minRequis)
                     {
                         double denominateur = (minRequis == 0) ? 1 : (double)minRequis;
                         double ratio = (double)xpCandidat / denominateur;
-
                         scoreBrutExp = (int)(ratio * 100);
                         vm.DetailsNegatifs.Add($"Manque d'expérience ({xpCandidat} ans / {minRequis} min)");
                     }
-                    // --- CAS 3 : SUR-QUALIFIÉ (Au dessus du max) ---
                     else
                     {
                         int ecart = xpCandidat - maxRequis;
-
-                        // Si Junior (max 2) et candidat a beaucoup plus (écart >= 3, donc 5+ ans)
                         if (checkSurqualification && ecart >= 3)
                         {
-                            scoreBrutExp = 55; // Pénalité
+                            scoreBrutExp = 55; 
                             vm.DetailsNegatifs.Add($"⚠️ Surqualifié pour un poste Junior ({xpCandidat} ans)");
                         }
                         else
                         {
-                            // Pour les autres profils, avoir plus est un bonus
                             scoreBrutExp = 100;
                             vm.DetailsPositifs.Add($"Expérience solide ({xpCandidat} ans)");
                         }
                     }
                 }
-
                 vm.ScoreExperience = scoreBrutExp;
 
-
-                // ==================================================
-                // C. SCORE LOCALISATION
-                // ==================================================
+                
                 int scoreBrutLoc = 0;
                 string villeOffre = offre.VilleCible?.Trim().ToLower() ?? "";
                 string villeCandidat = candidat.Ville?.Trim().ToLower() ?? "";
@@ -241,22 +215,15 @@ namespace Projet.Controllers
                 }
                 vm.ScoreLocalisation = scoreBrutLoc;
 
-
-                // ==================================================
-                // D. TOTAL PONDÉRÉ
-                // ==================================================
+                
                 double noteFinale = (scoreBrutComp * poidsComp) + (scoreBrutExp * poidsExp) + (scoreBrutLoc * poidsLoc);
                 double sommePoids = poidsComp + poidsExp + poidsLoc;
                 if (sommePoids == 0) sommePoids = 1;
 
                 vm.ScoreGlobal = (int)(noteFinale / sommePoids);
 
-
-                // ==================================================
-                // E. EXCLUSION (KILLER QUESTION)
-                // ==================================================
+                
                 bool fautExclure = offre.ParametreScoring?.ExclureSiVilleDiff ?? false;
-
                 if (fautExclure && scoreBrutLoc == 0)
                 {
                     vm.ScoreGlobal = 0;
@@ -266,9 +233,21 @@ namespace Projet.Controllers
                 resultats.Add(vm);
             }
 
-            // --- 3. TRI ET RETOUR VUE ---
+            
             var classement = resultats.OrderByDescending(r => r.ScoreGlobal).ToList();
             ViewBag.TitreOffre = offre.Titre;
+
+            
+            int nbTop = classement.Count(c => c.ScoreGlobal >= 70);
+
+            await _notifService.Ajouter(
+                "Analyse Terminée",
+                $"Le scoring pour '{offre.Titre}' a généré {nbTop} profils prometteurs.",
+                "fas fa-magic",
+                "text-warning", 
+                Url.Action("Calculer", "Scoring", new { id = offre.Id })
+            );
+            // ---------------------------------------------
 
             return View(classement);
         }

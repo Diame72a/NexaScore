@@ -1,0 +1,114 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Connexion";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+
+            <div class="text-center mb-4">
+                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-lg"
+                     style="width: 80px; height: 80px; background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); color: white;">
+                    <i class="fas fa-user-circle fa-3x"></i>
+                </div>
+                <h2 class="fw-bold text-dark" style="font-family: 'Poppins', sans-serif;">Bon retour !</h2>
+                <p class="text-muted">Connectez-vous pour accéder à votre espace RH.</p>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+
+                <div class="card-body p-4 p-md-5">
+                    <form id="account" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small" role="alert"></div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Email" class="form-control rounded-3 border-0 bg-light" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                            <label asp-for="Input.Email" class="text-muted"><i class="fas fa-envelope me-2"></i>Email</label>
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Password" class="form-control rounded-3 border-0 bg-light" autocomplete="current-password" aria-required="true" placeholder="password" />
+                            <label asp-for="Input.Password" class="text-muted"><i class="fas fa-lock me-2"></i>Mot de passe</label>
+                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="Input.RememberMe" />
+                                <label class="form-check-label small text-muted" asp-for="Input.RememberMe">
+                                    Se souvenir de moi
+                                </label>
+                            </div>
+                            <a id="forgot-password" asp-page="./ForgotPassword" class="text-decoration-none small fw-bold" style="color: #4e73df;">
+                                Mot de passe oublié ?
+                            </a>
+                        </div>
+
+                        <div class="d-grid mb-4">
+                            <button id="login-submit" type="submit" class="btn btn-lg rounded-pill fw-bold text-white shadow-sm hover-scale"
+                                    style="background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); border:none; transition: transform 0.2s;">
+                                Se connecter <i class="fas fa-sign-in-alt ms-2"></i>
+                            </button>
+                        </div>
+
+                        <div class="text-center border-top pt-3">
+                            <p class="mb-0 small text-muted">
+                                Pas encore de compte ?
+                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="fw-bold text-decoration-none" style="color: #4e73df;">
+                                    Créer un compte
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+                <div class="mt-4 text-center">
+                    <p class="text-white small mb-3 text-shadow">Ou connectez-vous avec</p>
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="d-flex justify-content-center gap-2">
+                        @foreach (var provider in Model.ExternalLogins!)
+                        {
+                            <button type="submit" class="btn btn-light rounded-pill px-4 shadow-sm fw-bold text-muted" name="provider" value="@provider.Name">
+                                @if (provider.DisplayName == "Google")
+                                {
+                                    <i class="fab fa-google text-danger me-2"></i>
+                                }
+                                else if (provider.DisplayName == "Microsoft")
+                                {
+
+                                    <i class="fab fa-microsoft text-success me-2"></i>
+                                }
+                                else
+                                {
+
+                                    <i class="fas fa-globe me-2"></i>
+                                }
+                                @provider.DisplayName
+                            </button>
+                        }
+                    </form>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <style>
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+    </style>
+}

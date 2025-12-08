@@ -207,6 +207,12 @@ namespace Projet.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<string>("CvNomFichier")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CvPath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateOnly>("DateNaissance")
                         .HasColumnType("date");
 
@@ -217,6 +223,12 @@ namespace Projet.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ImageBannierePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageProfilPath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nom")
                         .IsRequired()

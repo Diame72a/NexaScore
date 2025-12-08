@@ -1,0 +1,94 @@
+﻿<script>
+    var mapInstance;
+    var markerInstance;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        var mapElement = document.getElementById('map');
+
+        
+        if (mapElement) {
+            
+            mapInstance = L.map('map', { zoomControl: false }).setView([46.603354, 1.888334], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(mapInstance);
+
+            
+            var villeInit = document.getElementById('inputVille').value;
+            var cpInit = document.getElementById('inputCp').value;
+            if(villeInit) {
+                searchCityCoordinates(villeInit + " " + cpInit);
+            }
+        }
+
+        
+        const inputVille = document.getElementById('inputVille');
+        const suggestionsList = document.getElementById('suggestionsVille');
+        const inputCp = document.getElementById('inputCp');
+
+        if(inputVille) {
+            inputVille.addEventListener('input', function() {
+                const query = this.value;
+                if (query.length < 3) { if(suggestionsList) suggestionsList.style.display = 'none'; return; }
+
+                fetch(`https://geo.api.gouv.fr/communes?nom=${query}&fields=nom,codesPostaux,centre&boost=population&limit=5`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if(suggestionsList) {
+                            suggestionsList.innerHTML = '';
+                            if (data.length > 0) {
+                                suggestionsList.style.display = 'block';
+                                data.forEach(ville => {
+                                    const item = document.createElement('li');
+                                    
+                                    const lat = ville.centre.coordinates[1];
+                                    const lon = ville.centre.coordinates[0];
+
+                                    item.innerHTML = `<a class="dropdown-item py-2 border-bottom" href="#" onclick="selectVille(event, '${ville.nom}', '${ville.codesPostaux[0]}', ${lat}, ${lon})">
+                                                        <div class="d-flex justify-content-between">
+                                                            <strong>${ville.nom}</strong>
+                                                            <span class="text-muted small">${ville.codesPostaux[0]}</span>
+                                                        </div>
+                                                      </a>`;
+                                    suggestionsList.appendChild(item);
+                                });
+                            } else { suggestionsList.style.display = 'none'; }
+                        }
+                    });
+            });
+
+            
+            document.addEventListener('click', function(e) { if (e.target !== inputVille && suggestionsList) suggestionsList.style.display = 'none'; });
+        }
+    });
+
+    
+    function selectVille(e, nom, cp, lat, lon) {
+        e.preventDefault();
+        document.getElementById('inputVille').value = nom;
+        document.getElementById('inputCp').value = cp;
+        document.getElementById('suggestionsVille').style.display = 'none';
+
+        
+        if(mapInstance && lat && lon) {
+            mapInstance.setView([lat, lon], 13);
+            if(markerInstance) markerInstance.setLatLng([lat, lon]);
+            else markerInstance = L.marker([lat, lon]).addTo(mapInstance);
+        }
+    }
+
+    
+    function searchCityCoordinates(query) {
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+            .then(r => r.json())
+            .then(d => {
+                if (d && d.length > 0) {
+                    var lat = d[0].lat;
+                    var lon = d[0].lon;
+                    if(mapInstance) {
+                        mapInstance.setView([lat, lon], 13);
+                        L.marker([lat, lon]).addTo(mapInstance);
+                    }
+                }
+            });
+    }
+</script>

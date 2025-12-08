@@ -1,25 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations; 
+using System.ComponentModel.DataAnnotations;
 
 namespace Projet.Models;
 
 public partial class Personne
 {
     public int Id { get; set; }
-
     public string Nom { get; set; } = null!;
-
     public string Prenom { get; set; } = null!;
-
     public string Email { get; set; } = null!;
-
     public DateOnly DateNaissance { get; set; }
-
     public string? Ville { get; set; }
-
     public string? CodePostal { get; set; }
-
     public int? AnneesExperienceTotal { get; set; }
 
     [Display(Name = "Téléphone")]
@@ -30,6 +23,12 @@ public partial class Personne
 
     [Display(Name = "Description / Bio")]
     public string? Description { get; set; }
+
+
+    public string? ImageProfilPath { get; set; }  
+    public string? ImageBannierePath { get; set; } 
+    public string? CvPath { get; set; }            
+    public string? CvNomFichier { get; set; }      
     // -------------------------------
 
     public virtual ICollection<CompetenceAcquise> CompetenceAcquises { get; set; } = new List<CompetenceAcquise>();

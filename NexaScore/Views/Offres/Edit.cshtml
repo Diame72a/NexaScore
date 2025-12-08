@@ -2,230 +2,229 @@
 @model Projet.Models.Offre
 
 @{
-    ViewData["Title"] = "Modifier l'offre";
+    ViewData["Title"] = "Configurer l'offre";
 }
 
-<div class="container py-5">
+<style>
+    /* Styles spécifiques pour le slider de niveau */
+    .level-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: inline-block;
+        margin-right: 2px;
+    }
+
+        .level-dot.active {
+            background-color: #4e73df;
+        }
+
+    .hover-scale:hover {
+        transform: scale(1.02);
+        transition: transform 0.2s;
+    }
+
+    .card-header-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin-right: 10px;
+    }
+</style>
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <a asp-action="Index" class="btn btn-white border shadow-sm rounded-circle me-3"><i class="fas fa-arrow-left"></i></a>
+            <div>
+                <h4 class="fw-bold text-dark mb-0">Configuration de l'offre</h4>
+                <small class="text-muted">Réf: #@Model.Id • Créée le @Model.DateCreation?.ToString("dd/MM/yyyy")</small>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Scoring" asp-action="Calculer" asp-route-id="@Model.Id" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                <i class="fas fa-bolt me-2"></i>Lancer le Matching
+            </a>
+        </div>
+    </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-5 rounded-4 px-4 py-3">
-            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px;">
-                <i class="fas fa-check"></i>
-            </div>
-            <div>
-                <h6 class="fw-bold mb-0 text-success">Parfait !</h6>
-                <small class="text-success opacity-75">@TempData["SuccessMessage"]</small>
-            </div>
+        <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4 px-4 d-flex align-items-center">
+            <i class="fas fa-check-circle fa-lg me-3"></i>
+            <div><strong>Succès !</strong> @TempData["SuccessMessage"]</div>
         </div>
     }
 
-    <div class="d-flex align-items-center justify-content-center mb-5">
-        <div class="d-flex align-items-center opacity-50">
-            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
-                 style="width: 40px; height: 40px;">
-                <i class="fas fa-check"></i>
-            </div>
-            <span class="ms-2 fw-bold text-success small text-uppercase">Informations</span>
-        </div>
+    <form asp-action="Edit">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="DateCreation" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-        <div class="mx-3" style="width: 100px; height: 3px; background-color: #d1e7dd; border-radius: 10px;"></div>
+        <div class="row g-4">
 
-        <div class="d-flex align-items-center">
-            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
-                 style="width: 40px; height: 40px; box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2)!important;">
-                2
-            </div>
-            <span class="ms-2 fw-bold text-primary small text-uppercase">Compétences & Scoring</span>
-        </div>
-    </div>
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center">
+                        <div class="card-header-icon bg-primary bg-opacity-10 text-primary"><i class="fas fa-file-alt"></i></div>
+                        <h6 class="fw-bold mb-0 text-dark">Informations Générales</h6>
+                    </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-0 text-dark">Configuration de l'offre</h4>
-            <small class="text-muted">Réf: #@Model.Id • @Model.Titre</small>
-        </div>
-        <div class="d-flex gap-2">
-            <a asp-action="Index" class="btn btn-light border rounded-pill px-4 text-muted small fw-bold">
-                <i class="fas fa-arrow-left me-1"></i> Retour liste
-            </a>
-            <a asp-controller="Scoring" asp-action="Calculer" asp-route-id="@Model.Id" class="btn btn-outline-primary rounded-pill small fw-bold border-2">
-                <i class="fas fa-magic me-2"></i>Lancer Matching
-            </a>
-        </div>
-    </div>
-
-    <div class="row g-4">
-
-        <div class="col-lg-6">
-            <div class="card shadow border-0 h-100 rounded-4">
-                <div class="card-header bg-white py-3 px-4 border-bottom">
-                    <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-pen me-2"></i>Paramètres Généraux</h6>
-                </div>
-                <div class="card-body p-4">
-                    <form asp-action="Edit">
-                        <input type="hidden" asp-for="Id" />
-                        <input type="hidden" asp-for="DateCreation" />
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                        <div class="mb-3">
-                            <label asp-for="Titre" class="form-label small fw-bold text-muted">TITRE DU POSTE</label>
-                            <input asp-for="Titre" class="form-control bg-light border-0" />
+                    <div class="card-body p-4">
+                        <div class="mb-4">
+                            <label asp-for="Titre" class="form-label small fw-bold text-muted text-uppercase">Titre du poste</label>
+                            <input asp-for="Titre" class="form-control bg-light border-0 py-2 fw-bold text-dark" placeholder="Ex: Développeur Fullstack" />
                             <span asp-validation-for="Titre" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="PosteId" class="form-label small fw-bold text-muted">MÉTIER DE RÉFÉRENCE</label>
-                            <select asp-for="PosteId" class="form-select bg-light border-0" asp-items="ViewBag.PosteId"></select>
-                        </div>
-
-                        <div class="row g-2 mb-3">
-                            <div class="col-md-8 position-relative">
-                                <label asp-for="VilleCible" class="form-label small fw-bold text-muted">VILLE</label>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="PosteId" class="form-label small fw-bold text-muted text-uppercase">Métier de référence</label>
+                                <select asp-for="PosteId" class="form-select bg-light border-0" asp-items="ViewBag.PosteId"></select>
+                            </div>
+                            <div class="col-md-6 position-relative">
+                                <label asp-for="VilleCible" class="form-label small fw-bold text-muted text-uppercase">Localisation</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light border-0 text-muted ps-3"><i class="fas fa-map-marker-alt small"></i></span>
-                                    <input asp-for="VilleCible" id="inputVille" class="form-control bg-light border-0" autocomplete="off" />
+                                    <span class="input-group-text bg-light border-0 text-danger"><i class="fas fa-map-marker-alt"></i></span>
+                                    <input asp-for="VilleCible" id="inputVille" class="form-control bg-light border-0" autocomplete="off" placeholder="Saisir une ville..." />
                                     <ul id="suggestionsVille" class="dropdown-menu w-100 shadow border-0" style="display:none; max-height: 200px; overflow-y: auto;"></ul>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label asp-for="CodePostalCible" class="form-label small fw-bold text-muted">CP</label>
-                                <input asp-for="CodePostalCible" id="inputCp" class="form-control bg-light border-0" />
+                                <input asp-for="CodePostalCible" id="inputCp" type="hidden" />
                             </div>
                         </div>
 
-                        <div class="mb-4 pt-3 border-top">
-                            <label asp-for="ParametreScoring.CibleExperience" class="form-label small fw-bold text-primary">CIBLE EXPÉRIENCE (SCORING)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-0 text-primary"><i class="fas fa-bullseye"></i></span>
-                                <select asp-for="ParametreScoring.CibleExperience"
-                                        class="form-select bg-light border-0"
-                                        asp-items="Html.GetEnumSelectList<Projet.Models.NiveauExperienceCible>()">
-                                </select>
-                            </div>
-                            <div class="form-text small mt-1">Définit le profil idéal pour le calcul de score.</div>
+                        <div class="mb-2">
+                            <label asp-for="Description" class="form-label small fw-bold text-muted text-uppercase">Description du poste</label>
+                            <textarea asp-for="Description" class="form-control bg-light border-0" rows="5" placeholder="Détails des missions..."></textarea>
                         </div>
-
-                        <div class="mb-4">
-                            <label asp-for="Description" class="form-label small fw-bold text-muted">DESCRIPTION</label>
-                            <textarea asp-for="Description" class="form-control bg-light border-0" style="height: 100px"></textarea>
-                        </div>
-
-                        <div class="d-grid pt-2">
-                            <button type="submit" class="btn btn-primary-gradient shadow-sm fw-bold rounded-pill">
-                                <i class="fas fa-save me-2"></i>Enregistrer les modifications
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-6">
-            <div class="card shadow border-0 h-100 rounded-4">
-                <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
-                    <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-tasks me-2"></i>Exigences Techniques</h6>
+            <div class="col-lg-5">
 
-                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm" onclick="loadBulkModal(@Model.Id)">
-                        <i class="fas fa-plus me-1"></i> Ajouter (Sélection)
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-gradient-light">
+                    <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center">
+                        <div class="card-header-icon bg-warning bg-opacity-10 text-dark"><i class="fas fa-bullseye"></i></div>
+                        <h6 class="fw-bold mb-0 text-dark">Cible Expérience</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="small text-muted mb-2">Quel niveau de séniorité recherchez-vous ?</p>
+                        <select asp-for="ParametreScoring.CibleExperience"
+                                class="form-select border-0 shadow-sm fw-bold text-primary"
+                                style="background-color: #f8f9fc;"
+                                asp-items="Html.GetEnumSelectList<Projet.Models.NiveauExperienceCible>()">
+                        </select>
+                        <div class="mt-2 d-flex align-items-start">
+                            <i class="fas fa-info-circle text-info me-2 mt-1 small"></i>
+                            <small class="text-muted" style="font-size: 0.75rem;">
+                                L'algorithme pénalisera les profils trop éloignés de cette cible (sous-qualifiés ou sur-qualifiés).
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="card-header-icon bg-success bg-opacity-10 text-success"><i class="fas fa-layer-group"></i></div>
+                            <h6 class="fw-bold mb-0 text-dark">Stack Technique</h6>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill fw-bold" onclick="loadBulkModal(@Model.Id)">
+                            <i class="fas fa-plus me-1"></i> Ajouter
+                        </button>
+                    </div>
+
+                    <div class="card-body p-0">
+                        @if (Model.CompetenceSouhaitees != null && Model.CompetenceSouhaitees.Any())
+                        {
+                            <ul class="list-group list-group-flush">
+                                @foreach (var item in Model.CompetenceSouhaitees.OrderByDescending(x => x.NiveauRequis))
+                                {
+                                    <li class="list-group-item border-bottom-0 py-3 px-4 d-flex align-items-center justify-content-between hover-scale">
+
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3 fw-bold text-dark border" style="width: 36px; height: 36px;">
+                                                @item.Competence?.Nom.Substring(0, 1)
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark lh-1">@item.Competence?.Nom</div>
+                                                <div class="mt-1">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        string dotClass = i <= item.NiveauRequis ? "active" : "";
+                                                        <span class="level-dot @dotClass"></span>
+                                                    }
+                                                    <span class="small text-muted ms-1">Nv. @item.NiveauRequis</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" form="form-delete-@item.Id" class="btn btn-link text-muted p-0 opacity-50 hover-scale" title="Supprimer">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <div class="text-muted opacity-25 mb-2"><i class="fas fa-code fa-2x"></i></div>
+                                <p class="text-muted small mb-3">Aucune compétence définie.</p>
+                                <button type="button" class="btn btn-sm btn-light border" onclick="loadBulkModal(@Model.Id)">Sélectionner des compétences</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow fw-bold">
+                        <i class="fas fa-save me-2"></i> Enregistrer tout
                     </button>
                 </div>
 
-                <div class="card-body p-4 bg-light bg-opacity-25">
-
-                    @if (Model.CompetenceSouhaitees != null && Model.CompetenceSouhaitees.Any())
-                    {
-                        <div class="d-flex flex-column gap-3">
-                            @foreach (var item in Model.CompetenceSouhaitees.OrderByDescending(x => x.NiveauRequis))
-                            {
-                                <div class="p-3 bg-white border-0 rounded-3 shadow-sm d-flex align-items-center justify-content-between transition-hover">
-
-                                    <div class="d-flex align-items-center" style="width: 45%;">
-                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 fw-bold"
-                                             style="width: 38px; height: 38px;">
-                                            @item.Competence?.Nom.Substring(0, 1)
-                                        </div>
-                                        <span class="fw-bold text-dark">@item.Competence?.Nom</span>
-                                    </div>
-
-                                    <div style="width: 40%;">
-                                        <div class="d-flex justify-content-between small mb-1">
-                                            <span class="text-muted text-uppercase" style="font-size: 0.65rem;">Requis</span>
-                                            <span class="fw-bold text-dark">@item.NiveauRequis/5</span>
-                                        </div>
-                                        <div class="progress" style="height: 5px;">
-                                            @{
-                                                var w = item.NiveauRequis * 20;
-                                                var c = item.NiveauRequis >= 4 ? "bg-danger" : (item.NiveauRequis >= 3 ? "bg-warning" : "bg-info");
-                                            }
-                                            <div class="progress-bar @c" style="width: @w%"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="ms-2">
-                                        <form asp-action="SupprimerCompetence" method="post">
-                                            <input type="hidden" name="id" value="@item.Id" />
-                                            <input type="hidden" name="source" value="Edit" />
-                                            <button type="submit" class="btn btn-link text-muted p-0 opacity-50 hover-opacity-100" title="Retirer" onclick="return confirm('Supprimer cette exigence ?')">
-                                                <i class="fas fa-times-circle fa-lg"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-5 text-muted h-100 d-flex flex-column justify-content-center align-items-center border border-dashed rounded-3 bg-white">
-                            <div class="mb-3 text-primary opacity-25"><i class="fas fa-layer-group fa-3x"></i></div>
-                            <h6 class="fw-bold text-dark mb-1">Aucune exigence définie</h6>
-                            <p class="small mb-3 text-muted px-4">Ajoutez des compétences pour permettre à l'algorithme de filtrer les candidats.</p>
-                            <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="loadBulkModal(@Model.Id)">Ajouter maintenant</button>
-                        </div>
-                    }
-
-                </div>
             </div>
         </div>
-    </div>
+    </form>
+
+    @if (Model.CompetenceSouhaitees != null)
+    {
+        foreach (var item in Model.CompetenceSouhaitees)
+        {
+            <form id="form-delete-@item.Id" asp-action="SupprimerCompetence" method="post" class="d-none">
+                <input type="hidden" name="id" value="@item.Id" />
+                <input type="hidden" name="source" value="Edit" />
+            </form>
+        }
+    }
+
 </div>
 
 <div class="modal fade" id="modalBulkAdd" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <h5 class="modal-title fw-bold"><i class="fas fa-layer-group me-2"></i>Sélection multiple</h5>
+                <h5 class="modal-title fw-bold"><i class="fas fa-tasks me-2"></i>Ajouter des compétences</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div id="modalBulkContent">
                 <div class="p-5 text-center">
                     <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2 text-muted">Chargement du catalogue...</p>
+                    <p class="mt-2 text-muted small">Chargement du catalogue...</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .hover-opacity-100:hover {
-        opacity: 1 !important;
-        color: #dc3545 !important;
-    }
-
-    .transition-hover {
-        transition: transform 0.2s;
-    }
-
-        .transition-hover:hover {
-            transform: translateX(5px);
-        }
-</style>
-
 <script>
-    // 1. Autocomplétion
+    // 1. AUTOCOMPLETION VILLE (API GOUV)
     const inputVille = document.getElementById('inputVille');
     const suggestionsList = document.getElementById('suggestionsVille');
     const inputCp = document.getElementById('inputCp');
@@ -234,6 +233,7 @@
         inputVille.addEventListener('input', function() {
             const query = this.value;
             if (query.length < 3) { if(suggestionsList) suggestionsList.style.display = 'none'; return; }
+
             fetch(`https://geo.api.gouv.fr/communes?nom=${query}&fields=nom,codesPostaux&boost=population&limit=5`)
                 .then(response => response.json())
                 .then(data => {
@@ -243,7 +243,9 @@
                             suggestionsList.style.display = 'block';
                             data.forEach(ville => {
                                 const item = document.createElement('li');
-                                item.innerHTML = `<a class="dropdown-item" href="#" onclick="selectVille(event, '${ville.nom}', '${ville.codesPostaux[0]}')">${ville.nom} (${ville.codesPostaux[0]})</a>`;
+                                item.innerHTML = `<a class="dropdown-item py-2" href="#" onclick="selectVille(event, '${ville.nom}', '${ville.codesPostaux[0]}')">
+                                                    <strong>${ville.nom}</strong> <span class='text-muted small'>(${ville.codesPostaux[0]})</span>
+                                                  </a>`;
                                 suggestionsList.appendChild(item);
                             });
                         } else { suggestionsList.style.display = 'none'; }
@@ -258,12 +260,18 @@
         inputCp.value = cp;
         suggestionsList.style.display = 'none';
     }
-    document.addEventListener('click', function(e) { if (e.target !== inputVille && suggestionsList) suggestionsList.style.display = 'none'; });
 
-    // 2. Bulk Modal
+    // Fermer la liste si on clique ailleurs
+    document.addEventListener('click', function(e) {
+        if (e.target !== inputVille && suggestionsList) suggestionsList.style.display = 'none';
+    });
+
+    // 2. MODAL BULK AJAX
     function loadBulkModal(offreId) {
         var myModal = new bootstrap.Modal(document.getElementById('modalBulkAdd'));
         myModal.show();
-        fetch('/Offres/AjouterPlusieurs/' + offreId).then(r => r.text()).then(h => document.getElementById('modalBulkContent').innerHTML = h);
+        fetch('/Offres/AjouterPlusieurs/' + offreId)
+            .then(r => r.text())
+            .then(h => document.getElementById('modalBulkContent').innerHTML = h);
     }
 </script>

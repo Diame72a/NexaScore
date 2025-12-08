@@ -2,64 +2,142 @@
 
 @{
     ViewData["Title"] = "Centre de Matching";
+
+    // Calcul pour les stats rapides (sécurisé)
+    var totalOffres = Model != null ? Model.Count() : 0;
+    var totalCandidats = (int)(ViewBag.TotalCandidats ?? 0);
 }
+
+<style>
+    /* Styles personnalisés pour le Dashboard */
+    .hover-shadow:hover {
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8faff;
+    }
+
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+    }
+
+    .transition-hover {
+        transition: background-color 0.2s ease;
+    }
+
+    /* Dégradé doux pour le fond */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .bg-gradient-dark {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    }
+</style>
 
 <div class="container-fluid py-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center">
-            <div class="rounded p-2 me-3 shadow-sm text-white"
-                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <i class="fas fa-robot fa-lg"></i>
+        <div>
+            <h4 class="fw-bold text-dark mb-1">Centre de Matching IA</h4>
+            <p class="text-muted small mb-0">Pilotez vos recrutements et lancez les analyses de compatibilité.</p>
+        </div>
+        <div>
+            <a asp-controller="Offres" asp-action="Create" class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold">
+                <i class="fas fa-plus me-2"></i>Nouvelle Offre
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 hover-shadow">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="icon-box bg-primary bg-opacity-10 text-primary me-3">
+                        <i class="fas fa-briefcase fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-0">Offres Actives</h6>
+                        <h3 class="fw-bold text-dark mb-0">@totalOffres</h3>
+                    </div>
+                </div>
             </div>
-            <div>
-                <h4 class="fw-bold mb-0 text-dark">Centre de Matching IA</h4>
-                <p class="mb-0 text-muted small">Analysez la compatibilité Offres / Candidats</p>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 hover-shadow">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="icon-box bg-success bg-opacity-10 text-success me-3">
+                        <i class="fas fa-users fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold mb-0">Vivier Candidats</h6>
+                        <h3 class="fw-bold text-dark mb-0">@totalCandidats</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 text-white bg-gradient-primary hover-shadow">
+                <div class="card-body d-flex align-items-center p-4">
+                    <div class="icon-box bg-white bg-opacity-25 text-white me-3">
+                        <i class="fas fa-bolt fa-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white-50 text-uppercase small fw-bold mb-0">Algorithme</h6>
+                        <h3 class="fw-bold text-white mb-0">Prêt</h3>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
-
         <div class="col-lg-9">
-            <div class="card border-0 shadow-sm h-100">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
 
-                <div class="card-header bg-white py-3 border-bottom">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <h5 class="mb-0 fw-bold text-dark">Sélectionnez une offre</h5>
+                <div class="card-header bg-white py-3 px-4 border-bottom">
+                    <form asp-action="Index" method="get">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 ps-3"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                                   class="form-control bg-light border-0 py-2"
+                                   placeholder="Rechercher par titre ou ville..."
+                                   onchange="this.form.submit()">
+                            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"] as string))
+                            {
+                                <a asp-action="Index" class="btn btn-light border-0 text-muted"><i class="fas fa-times"></i></a>
+                            }
                         </div>
-                        <div class="col-md-6">
-                            <form asp-action="Index" method="get">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
-                                           class="form-control bg-light border-start-0"
-                                           placeholder="Rechercher une offre..."
-                                           onchange="this.form.submit()">
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    </form>
                 </div>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light">
-                            <tr class="text-muted small text-uppercase fw-bold">
-                                <th class="ps-4 py-3">Offre d'emploi</th>
-                                <th>Métier</th>
-                                <th>Lieu</th>
-                                <th class="text-end pe-4">Action</th>
+                        <thead class="bg-light text-muted small text-uppercase">
+                            <tr>
+                                <th class="ps-4 py-3 border-0">Offre</th>
+                                <th class="border-0">Lieu & Date</th>
+                                <th class="border-0 text-center">Profils Cibles</th>
+                                <th class="border-0 text-end pe-4">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if (!Model.Any())
                             {
                                 <tr>
-                                    <td colspan="4" class="text-center py-5 text-muted">
-                                        <i class="fas fa-briefcase fa-2x mb-3 opacity-25"></i><br />
-                                        Aucune offre trouvée. <a asp-controller="Offres" asp-action="Create">Créez-en une !</a>
+                                    <td colspan="4" class="text-center py-5">
+                                        <div class="text-muted opacity-50 mb-3"><i class="fas fa-folder-open fa-3x"></i></div>
+                                        <h6 class="fw-bold text-muted">Aucune offre trouvée</h6>
+                                        <p class="small text-muted mb-3">Modifiez votre recherche ou créez une nouvelle offre.</p>
+                                        <a asp-controller="Offres" asp-action="Create" class="btn btn-sm btn-outline-primary rounded-pill">Créer une offre</a>
                                     </td>
                                 </tr>
                             }
@@ -67,30 +145,56 @@
                             {
                                 @foreach (var item in Model)
                                 {
-                                    <tr>
-                                        <td class="ps-4">
+                                    // --- CORRECTION ET SECURISATION DES DATES ---
+                                    // 1. On récupère une date sûre (si null, on met DateTime.Now)
+                                    DateTime dateSafe = item.DateCreation ?? DateTime.Now;
+
+                                    // 2. Calcul booléen sur des types sûrs
+                                    bool isNew = (DateTime.Now - dateSafe).TotalDays < 7;
+
+                                    // 3. Initiale du titre sécurisée
+                                    string initiale = (!string.IsNullOrEmpty(item.Titre)) ? item.Titre.Substring(0, 1).ToUpper() : "?";
+
+                                    <tr class="transition-hover">
+                                        <td class="ps-4 py-3">
                                             <div class="d-flex align-items-center">
-                                                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 fw-bold"
-                                                     style="width: 35px; height: 35px;">
-                                                    @item.Titre.Substring(0, 1)
+                                                <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 fw-bold shadow-sm"
+                                                     style="width: 42px; height: 42px; font-size: 1.1rem;">
+                                                    @initiale
                                                 </div>
                                                 <div>
-                                                    <span class="fw-bold text-dark d-block">@item.Titre</span>
-                                                    <span class="small text-muted">Réf #@item.Id</span>
+                                                    <div class="d-flex align-items-center">
+                                                        <a asp-controller="Offres" asp-action="Details" asp-route-id="@item.Id" class="fw-bold text-dark text-decoration-none">
+                                                            @item.Titre
+                                                        </a>
+                                                        @if (isNew)
+                                                        {
+                                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-2 rounded-pill" style="font-size: 0.6rem;">NOUVEAU</span>
+                                                        }
+                                                    </div>
+                                                    <span class="small text-muted">@item.Poste?.Intitule</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="badge bg-light text-dark border fw-normal">@item.Poste?.Intitule</span>
+                                            <div class="d-flex flex-column small">
+                                                <span class="text-dark fw-bold"><i class="fas fa-map-marker-alt text-muted me-1"></i> @item.VilleCible</span>
+                                                <span class="text-muted">Créé le @dateSafe.ToString("dd/MM/yyyy")</span>
+                                            </div>
                                         </td>
-                                        <td>
-                                            <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> @item.VilleCible</small>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-muted border rounded-pill">Tout le vivier</span>
                                         </td>
                                         <td class="text-end pe-4">
                                             <a asp-action="Calculer" asp-route-id="@item.Id"
-                                               class="btn btn-sm text-white fw-bold rounded-pill px-3 shadow-sm btn-hover-scale"
-                                               style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border:none;">
-                                                <i class="fas fa-bolt me-1"></i> Analyser
+                                               class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm"
+                                               title="Lancer le matching IA">
+                                                <i class="fas fa-magic me-1"></i> Matcher
+                                            </a>
+                                            <a asp-controller="Offres" asp-action="Edit" asp-route-id="@item.Id"
+                                               class="btn btn-light btn-sm rounded-circle shadow-sm border text-muted ms-1"
+                                               title="Modifier les critères">
+                                                <i class="fas fa-cog"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -99,45 +203,51 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if (Model.Any())
+                {
+                    <div class="card-footer bg-white py-3 px-4 border-0 d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Affichage de <strong>@Model.Count()</strong> résultats</small>
+                    </div>
+                }
             </div>
         </div>
 
         <div class="col-lg-3">
 
-            <div class="card border-0 shadow-sm mb-4 bg-dark text-white"
-                 style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
-                <div class="card-body p-4 position-relative overflow-hidden">
-                    <h2 class="display-4 fw-bold mb-0">@ViewBag.TotalCandidats</h2>
-                    <p class="text-white-50 small text-uppercase fw-bold mb-3">Profils analysés</p>
-                    <hr class="opacity-25">
-                    <p class="small mb-0 opacity-75">
-                        L'algorithme compare chaque offre à l'intégralité de votre vivier de talents en temps réel.
-                    </p>
-                    <i class="fas fa-users position-absolute" style="font-size: 8rem; right: -30px; bottom: -30px; opacity: 0.1;"></i>
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Comment ça marche ?</h6>
+                    <ul class="list-unstyled small text-muted mb-0 d-flex flex-column gap-2">
+                        <li class="d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                            <span>L'algorithme analyse les compétences requises vs acquises.</span>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                            <span>L'expérience est pondérée selon le profil (Junior/Senior).</span>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                            <span>La localisation impacte le score final (bonus ou malus).</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white fw-bold small text-uppercase text-muted">Comment ça marche ?</div>
-                <div class="card-body">
-                    <ul class="list-unstyled small text-muted mb-0">
-                        <li class="mb-2 d-flex"><i class="fas fa-check-circle text-success me-2 mt-1"></i> <span>Analyse sémantique des compétences</span></li>
-                        <li class="mb-2 d-flex"><i class="fas fa-check-circle text-success me-2 mt-1"></i> <span>Calcul pondéré de l'expérience</span></li>
-                        <li class="d-flex"><i class="fas fa-check-circle text-success me-2 mt-1"></i> <span>Compatibilité géographique</span></li>
-                    </ul>
+            <div class="card border-0 shadow-sm rounded-4 bg-light overflow-hidden">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-primary opacity-50">
+                        <i class="fas fa-file-contract fa-3x"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark">Besoin d'ajouter un poste ?</h6>
+                    <p class="small text-muted mb-3">Définissez les critères précis pour obtenir un scoring pertinent.</p>
+                    <a asp-controller="Offres" asp-action="Create" class="btn btn-outline-primary rounded-pill w-100 fw-bold">
+                        Créer une fiche
+                    </a>
                 </div>
             </div>
 
         </div>
     </div>
 </div>
-
-<style>
-    .btn-hover-scale {
-        transition: transform 0.2s;
-    }
-
-        .btn-hover-scale:hover {
-            transform: scale(1.05);
-        }
-</style>

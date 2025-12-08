@@ -1,186 +1,194 @@
 ﻿@model IEnumerable<Projet.Models.Personne>
+
 @{
     ViewData["Title"] = "Vivier Candidats";
+
+    // Récupération sécurisée des stats envoyées par le contrôleur
+    int totalCandidats = ViewBag.TotalCandidats ?? 0;
+    int totalExperts = ViewBag.TotalExperts ?? 0;
 }
+
+<style>
+    /* Effet de survol sur les cartes candidats */
+    .candidate-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+        .candidate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+    /* Avatar avec dégradé */
+    .avatar-initials {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.4rem;
+        border-radius: 50%;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Badges personnalisés */
+    .badge-xp {
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        padding: 6px 12px;
+    }
+</style>
 
 <div class="container-fluid py-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-flex align-items-center">
-            <div class="bg-success text-white rounded p-2 me-3 shadow-sm"
-                 style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%);">
-                <i class="fas fa-users fa-lg"></i>
-            </div>
-            <div>
-                <h4 class="fw-bold mb-0 text-dark">Vivier Candidats</h4>
-                <small class="text-muted">@Model.Count() profils disponibles</small>
-            </div>
+    <div class="row g-4 mb-5 align-items-end">
+        <div class="col-md-6">
+            <h4 class="fw-bold text-dark mb-1">Vivier de Talents</h4>
+            <p class="text-muted small mb-0">Gérez vos candidats et analysez leurs compétences.</p>
         </div>
-        <a asp-action="Create" class="btn text-white shadow-sm fw-bold btn-sm px-4 rounded-pill"
-           style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%); border:none;">
-            <i class="fas fa-user-plus me-2"></i>Ajouter un talent
-        </a>
+        <div class="col-md-6 text-md-end">
+            <a asp-action="Create" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                <i class="fas fa-plus me-2"></i>Ajouter un profil
+            </a>
+        </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-2 bg-light rounded">
-            <form asp-action="Index" method="get" class="row g-2 align-items-center">
-                <div class="col-md-4">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
-                               class="form-control border-start-0" placeholder="Nom, Prénom, Email...">
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                        <i class="fas fa-users fa-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0">@totalCandidats</h3>
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Candidats Total</small>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <select name="villeFilter" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="">Toutes les villes</option>
-                        @if (ViewBag.Villes != null)
-                        {
-                            foreach (var v in (List<string>)ViewBag.Villes)
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body d-flex align-items-center">
+                    <div class="bg-warning bg-opacity-10 text-dark rounded-circle p-3 me-3">
+                        <i class="fas fa-star fa-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0">@totalExperts</h3>
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Profils Seniors</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body d-flex align-items-center">
+                    <form asp-action="Index" method="get" class="row g-2 w-100 m-0">
+                        <div class="col-md-6 ps-0">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                                       class="form-control border-0 bg-light"
+                                       placeholder="Nom, job, email..." onchange="this.form.submit()">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="villeFilter" class="form-select border-0 bg-light" onchange="this.form.submit()">
+                                <option value="">🌍 Toutes les villes</option>
+                                @if (ViewBag.Villes != null)
+                                {
+                                    foreach (var v in (List<string>)ViewBag.Villes)
+                                    {
+                                        if ((string)ViewData["CurrentVille"] == v)
+                                        {
+                                            <option value="@v" selected>@v</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@v">@v</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 text-end pe-0">
+                            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"] as string) || !string.IsNullOrEmpty(ViewData["CurrentVille"] as string))
                             {
-                                if ((string)ViewData["CurrentVille"] == v)
-                                {
-                                    <option value="@v" selected>@v</option>
-                                }
-                                else
-                                {
-                                    <option value="@v">@v</option>
-                                }
+                                <a asp-action="Index" class="btn btn-link text-muted text-decoration-none small"><i class="fas fa-undo"></i></a>
                             }
-                        }
-                    </select>
+                        </div>
+                    </form>
                 </div>
-                <div class="col-md-2">
-                    <a asp-action="Index" class="btn btn-link btn-sm text-decoration-none text-muted"><i class="fas fa-times me-1"></i>Effacer</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
     <div class="row g-4">
-
-        <div class="col-lg-9">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-white border-bottom">
-                            <tr class="text-muted small text-uppercase">
-                                <th class="ps-4">Candidat</th>
-                                <th>Contact</th>
-                                <th>Localisation</th>
-                                <th>Niveau</th>
-                                <th class="text-end pe-4">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (!Model.Any())
-                            {
-                                <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
-                                        <i class="fas fa-user-slash fa-2x mb-3 opacity-25"></i><br />
-                                        Aucun candidat trouvé pour cette recherche.
-                                    </td>
-                                </tr>
-                            }
-                            else
-                            {
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td class="ps-4">
-                                            <div class="d-flex align-items-center">
-                                                <div class="rounded-circle text-white d-flex align-items-center justify-content-center me-2 small fw-bold"
-                                                     style="width: 32px; height: 32px; background: linear-gradient(135deg, #2af598 0%, #009efd 100%);">
-                                                    @item.Prenom.Substring(0, 1)@item.Nom.Substring(0, 1)
-                                                </div>
-                                                <span class="fw-bold text-dark">@item.Prenom @item.Nom</span>
-                                            </div>
-                                        </td>
-                                        <td class="text-muted small">
-                                            <a href="mailto:@item.Email" class="text-decoration-none text-muted">@item.Email</a>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-light text-dark border fw-normal">
-                                                <i class="fas fa-map-marker-alt text-danger me-1 small"></i> @item.Ville
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if (item.AnneesExperienceTotal >= 5)
-                                            {
-                                                <span class="badge bg-warning text-dark border">Senior</span>
-                                            }
-                                            else if (item.AnneesExperienceTotal >= 2)
-                                            {
-
-                                                <span class="badge bg-info text-white border">Confirmé</span>
-                                            }
-                                            else
-                                            {
-
-                                                <span class="badge bg-light text-muted border">Junior</span>
-                                            }
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <div class="btn-group">
-                                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light text-secondary border" title="Voir"><i class="fas fa-eye"></i></a>
-                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light text-primary border" title="Éditer"><i class="fas fa-pen"></i></a>
-                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light text-danger border" title="Supprimer"><i class="fas fa-trash"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
-                </div>
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <div class="text-muted opacity-25 mb-3"><i class="fas fa-folder-open fa-4x"></i></div>
+                <h5 class="fw-bold text-muted">Aucun profil trouvé</h5>
+                <p class="text-muted small">Modifiez vos critères de recherche ou ajoutez un nouveau candidat.</p>
             </div>
-        </div>
-
-        <div class="col-lg-3">
-            @if (Model.Any())
+        }
+        else
+        {
+            @foreach (var item in Model)
             {
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-header bg-white border-0 fw-bold small text-uppercase text-muted">
-                        Expérience
-                    </div>
-                    <div class="card-body d-flex align-items-center justify-content-center">
-                        <div style="width: 100%; max-height: 200px;">
-                            <canvas id="chartExp"></canvas>
+                // Calculs pour l'affichage (Badge & Initiale)
+                int xp = item.AnneesExperienceTotal ?? 0;
+                string badgeClass = xp >= 5 ? "bg-warning text-dark" : (xp >= 2 ? "bg-info text-white" : "bg-success text-white");
+                string badgeLabel = xp >= 5 ? "Senior" : (xp >= 2 ? "Confirmé" : "Junior");
+
+                string initiale = (item.Prenom?.Length > 0 && item.Nom?.Length > 0)
+                ? $"{item.Prenom.Substring(0, 1)}{item.Nom.Substring(0, 1)}"
+                : "?";
+
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="card h-100 rounded-4 shadow-sm candidate-card bg-white position-relative overflow-hidden">
+
+                        <div class="card-body text-center pt-5 pb-4">
+                            <div class="mx-auto mb-3 avatar-initials">
+                                @initiale
+                            </div>
+
+                            <h5 class="fw-bold text-dark mb-1 text-truncate" title="@item.Prenom @item.Nom">
+                                @item.Prenom @item.Nom
+                            </h5>
+
+                            <p class="text-primary small fw-bold mb-2 text-truncate text-uppercase ls-1">
+                                @(item.TitreJobActuel ?? "Candidat")
+                            </p>
+
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-map-marker-alt me-1 text-danger"></i>
+                                @(item.Ville ?? "Ville inconnue")
+                            </p>
+
+                            <span class="badge @badgeClass rounded-pill badge-xp shadow-sm">
+                                @badgeLabel (@xp ans)
+                            </span>
+                        </div>
+
+                        <div class="card-footer bg-light border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold">
+                                Voir profil
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="text-muted opacity-50 hover-opacity-100 transition-hover" title="Modifier">
+                                <i class="fas fa-cog fa-lg"></i>
+                            </a>
                         </div>
                     </div>
-                    <div class="card-footer bg-white border-0 text-center">
-                        <small class="text-muted" style="font-size: 0.7rem;">Répartition du vivier</small>
-                    </div>
                 </div>
             }
-        </div>
-
+        }
     </div>
 </div>
-
-@if (Model.Any())
-{
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        var ctx = document.getElementById('chartExp').getContext('2d');
-        new Chart(ctx, {
-            type: 'pie', // Camembert pour changer des barres
-            data: {
-                labels: @Html.Raw(Json.Serialize(ViewBag.ExpLabels)),
-                datasets: [{
-                    data: @Html.Raw(Json.Serialize(ViewBag.ExpData)),
-                    backgroundColor: ['#e2e8f0', '#36b9cc', '#f6c23e'], // Gris, Cyan, Jaune
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 } } }
-                }
-            }
-        });
-    </script>
-}

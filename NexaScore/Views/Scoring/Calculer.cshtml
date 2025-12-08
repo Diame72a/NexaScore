@@ -5,182 +5,149 @@
     var topCandidat = Model.FirstOrDefault();
 }
 
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .transition-bg {
+        transition: background-color 0.2s;
+    }
+
+    .hover-bg-light:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Animation pour l'ouverture des détails */
+    .collapse-content {
+        background-color: #f8faff;
+        border-top: 2px solid #eef2f7;
+    }
+
+    @@media print {
+        .no-print {
+            display: none !important;
+        }
+
+        .card {
+            border: 1px solid #ddd !important;
+            box-shadow: none !important;
+        }
+
+        .collapse {
+            display: block !important;
+        }
+        /* Imprime les détails ouverts */
+    }
+</style>
+
 <div class="container py-5">
 
     <div class="d-flex justify-content-between align-items-end mb-5">
         <div class="d-flex align-items-center">
             <div class="rounded p-3 me-3 shadow-sm text-white"
                  style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <i class="fas fa-robot fa-2x"></i>
+                <i class="fas fa-chart-pie fa-2x"></i>
             </div>
             <div>
-                <h6 class="text-uppercase text-primary fw-bold small mb-1">Rapport NexaScore™</h6>
+                <h6 class="text-uppercase text-primary fw-bold small mb-1">Rapport de Matching</h6>
                 <h2 class="fw-bold text-dark mb-0">@ViewBag.TitreOffre</h2>
                 <p class="text-muted mb-0 small">
-                    Analyse effectuée sur @Model.Count() profils • @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    @Model.Count() profils analysés • @DateTime.Now.ToString("dd MMMM yyyy à HH:mm")
                 </p>
             </div>
         </div>
-        <div class="d-flex gap-2">
-            <button onclick="window.print()" class="btn btn-white border shadow-sm text-muted fw-bold">
+        <div class="d-flex gap-2 no-print">
+            <button onclick="window.print()" class="btn btn-white border shadow-sm text-muted fw-bold transition-hover">
                 <i class="fas fa-print me-2"></i>Imprimer
             </button>
             <a asp-action="Index" class="btn btn-dark shadow-sm fw-bold px-4">
-                <i class="fas fa-undo me-2"></i>Nouvelle analyse
+                <i class="fas fa-arrow-left me-2"></i>Retour
             </a>
         </div>
     </div>
 
     @if (topCandidat != null && topCandidat.ScoreGlobal > 0)
     {
-        <div class="card border-0 shadow-lg rounded-4 mb-5 overflow-hidden bg-white">
+        <div class="card border-0 shadow-lg rounded-4 mb-5 overflow-hidden">
             <div class="card-header text-white py-3 px-4 border-0 d-flex justify-content-between align-items-center"
-                 style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%);">
-                <h5 class="mb-0 fw-bold"><i class="fas fa-trophy me-2 text-warning"></i>Meilleur Candidat</h5>
-                <span class="badge bg-white text-primary fw-bold rounded-pill px-3">Match @topCandidat.ScoreGlobal%</span>
+                 style="background: linear-gradient(135deg, #0acffe 0%, #495aff 100%);">
+                <h5 class="mb-0 fw-bold"><i class="fas fa-crown me-2 text-warning"></i>Meilleur Profil Identifié</h5>
+                <span class="badge bg-white text-primary fw-bold rounded-pill px-3 shadow-sm" style="font-size:1rem;">
+                    Match Global : @topCandidat.ScoreGlobal%
+                </span>
             </div>
 
-            <div class="card-body p-0">
+            <div class="card-body p-0 bg-white">
                 <div class="row g-0">
-
                     <div class="col-lg-7 p-5 border-end">
                         <div class="d-flex align-items-center mb-4">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm me-3"
-                                 style="width: 70px; height: 70px; font-size: 1.8rem; background-color: #009efd; border: 4px solid white;">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow me-4"
+                                 style="width: 80px; height: 80px; font-size: 2rem; background: #495aff;">
                                 @topCandidat.NomComplet.Substring(0, 1)
                             </div>
                             <div>
-                                <h3 class="fw-bold text-dark mb-0">@topCandidat.NomComplet</h3>
-                                <p class="text-muted mb-0"><i class="fas fa-map-marker-alt me-1"></i> @topCandidat.JobActuel</p>
+                                <h3 class="fw-bold text-dark mb-1">@topCandidat.NomComplet</h3>
+                                <div class="text-muted"><i class="fas fa-briefcase me-2"></i>@topCandidat.JobActuel</div>
                             </div>
                         </div>
 
-                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Points Clés de l'IA</h6>
-
-                        <div class="mb-4 d-flex flex-wrap gap-2">
-                            @foreach (var plus in topCandidat.DetailsPositifs.Take(4))
-                            {
-                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
-                                    <i class="fas fa-check-circle me-1"></i> @plus
-                                </span>
-                            }
-                            @if (topCandidat.IsLocalisationOk)
-                            {
-                                <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2 rounded-pill">
-                                    <i class="fas fa-map-pin me-1"></i> Localisation parfaite
-                                </span>
-                            }
-                        </div>
-
-                        <div class="row g-3 text-center">
-                            <div class="col-4">
-                                <div class="p-3 bg-light rounded-3 border">
-                                    <div class="text-muted small text-uppercase fw-bold">Technique</div>
-                                    <div class="h4 fw-bold text-primary mb-0">@topCandidat.ScoreCompetences%</div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted mb-1">Compétences</label>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-primary" style="width: @topCandidat.ScoreCompetences%"></div>
                                 </div>
+                                <div class="text-end small fw-bold mt-1 text-primary">@topCandidat.ScoreCompetences%</div>
                             </div>
-                            <div class="col-4">
-                                <div class="p-3 bg-light rounded-3 border">
-                                    <div class="text-muted small text-uppercase fw-bold">Expérience</div>
-                                    <div class="h4 fw-bold text-warning mb-0">@topCandidat.ScoreExperience%</div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted mb-1">Expérience</label>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-warning" style="width: @topCandidat.ScoreExperience%"></div>
                                 </div>
+                                <div class="text-end small fw-bold mt-1 text-warning">@topCandidat.ScoreExperience%</div>
                             </div>
-                            <div class="col-4">
-                                <div class="p-3 bg-light rounded-3 border">
-                                    <div class="text-muted small text-uppercase fw-bold">Ville</div>
-                                    <div class="h4 fw-bold text-success mb-0">@topCandidat.ScoreLocalisation%</div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted mb-1">Ville</label>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-success" style="width: @topCandidat.ScoreLocalisation%"></div>
                                 </div>
+                                <div class="text-end small fw-bold mt-1 text-success">@topCandidat.ScoreLocalisation%</div>
                             </div>
                         </div>
 
-                        <div class="mt-4">
+                        <div class="d-flex flex-wrap gap-2">
                             <a asp-controller="Personnes" asp-action="Details" asp-route-id="@topCandidat.CandidatId"
-                               class="btn btn-outline-primary w-100 rounded-pill fw-bold">
-                                Accéder au dossier complet
+                               class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                                <i class="fas fa-eye me-2"></i>Voir le dossier
                             </a>
                         </div>
                     </div>
 
-                    <div class="col-lg-5 p-4 bg-light d-flex flex-column align-items-center justify-content-center">
-                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Adéquation Compétences</h6>
-                        <div style="width: 100%; max-width: 350px;">
+                    <div class="col-lg-5 p-4 bg-light bg-opacity-50 d-flex flex-column align-items-center justify-content-center">
+                        <div style="width: 100%; max-width: 320px;">
                             <canvas id="radarTopCandidat"></canvas>
                         </div>
-                        <div class="mt-4 d-flex gap-3 small">
-                            <span class="d-flex align-items-center"><span class="d-inline-block rounded-circle me-2" style="width: 10px; height: 10px; background: #adb5bd;"></span> Cible</span>
-                            <span class="d-flex align-items-center"><span class="d-inline-block rounded-circle me-2" style="width: 10px; height: 10px; background: #009efd;"></span> Candidat</span>
-                        </div>
                     </div>
-
                 </div>
             </div>
         </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                var ctx = document.getElementById('radarTopCandidat').getContext('2d');
-
-                var labels = @Html.Raw(Json.Serialize(topCandidat.ChartLabels));
-                var dataOffre = @Html.Raw(Json.Serialize(topCandidat.ChartDataOffre));
-                var dataCandidat = @Html.Raw(Json.Serialize(topCandidat.ChartDataCandidat));
-
-                new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Cible',
-                                data: dataOffre,
-                                backgroundColor: 'rgba(173, 181, 189, 0.2)',
-                                borderColor: '#adb5bd',
-                                pointBackgroundColor: '#adb5bd',
-                                borderDash: [5, 5]
-                            },
-                            {
-                                label: 'Candidat',
-                                data: dataCandidat,
-                                backgroundColor: 'rgba(0, 158, 253, 0.5)',
-                                borderColor: '#009efd',
-                                pointBackgroundColor: '#009efd',
-                                borderWidth: 2
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            r: {
-                                angleLines: { color: '#e9ecef' },
-                                grid: { color: '#e9ecef' },
-                                suggestedMin: 0,
-                                suggestedMax: 5,
-                                ticks: { display: false, stepSize: 1 },
-                                pointLabels: { font: { size: 11, weight: 'bold' }, color: '#6c757d' }
-                            }
-                        },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-            });
-        </script>
     }
 
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-header bg-white py-3 px-4 border-bottom">
-            <h6 class="mb-0 fw-bold text-muted">Classement global (@Model.Count())</h6>
+            <h6 class="mb-0 fw-bold text-muted text-uppercase ls-1">Classement complet</h6>
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr class="text-muted small text-uppercase fw-bold">
-                        <th class="ps-4 py-3">Rang</th>
-                        <th>Candidat</th>
-                        <th>Analyse Rapide</th>
-                        <th class="text-center">Note</th>
-                        <th class="text-end pe-4">Action</th>
+            <table class="table table-hover align-middle mb-0" style="border-collapse: separate; border-spacing: 0;">
+                <thead class="bg-light text-muted small text-uppercase">
+                    <tr>
+                        <th class="ps-4 py-3 border-bottom-0">#</th>
+                        <th class="border-bottom-0">Candidat</th>
+                        <th class="border-bottom-0">Points Forts / Faibles</th>
+                        <th class="text-center border-bottom-0">Score Global</th>
+                        <th class="text-end pe-4 border-bottom-0">Détails</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -189,38 +156,90 @@
                     }
                     @foreach (var candidat in Model)
                     {
-                        // Code couleur note
-                        string colorClass = "bg-light text-muted";
-                        if (candidat.ScoreGlobal >= 80) { colorClass = "bg-success text-white"; }
-                        else if (candidat.ScoreGlobal >= 50) { colorClass = "bg-warning text-dark"; }
-                        else if (candidat.ScoreGlobal > 0) { colorClass = "bg-danger text-white"; }
+                        string scoreColor = candidat.ScoreGlobal >= 80 ? "success" : (candidat.ScoreGlobal >= 50 ? "warning" : "danger");
+                        string collapseId = "collapse-" + candidat.CandidatId;
 
-                        <tr>
-                            <td class="ps-4 fw-bold text-muted">#@rang</td>
+                        <tr class="cursor-pointer hover-bg-light" data-bs-toggle="collapse" data-bs-target="#@collapseId">
+                            <td class="ps-4 fw-bold text-muted">@rang</td>
                             <td>
                                 <div class="fw-bold text-dark">@candidat.NomComplet</div>
-                                <small class="text-muted">@candidat.JobActuel</small>
+                                <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>@candidat.JobActuel</small>
                             </td>
                             <td>
-                                @if (candidat.DetailsNegatifs.Any())
+                                @if (candidat.DetailsNegatifs.Any(x => x.Contains("Surqualifié")))
                                 {
-                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="fas fa-exclamation-circle me-1"></i> @candidat.DetailsNegatifs.First()</span>
+                                    <span class="badge bg-warning text-dark border border-warning mb-1">
+                                        <i class="fas fa-exclamation-triangle me-1"></i> Surqualifié
+                                    </span>
+                                }
+                                else if (candidat.DetailsNegatifs.Any(x => x.Contains("DISQUALIFIÉ")))
+                                {
+                                    <span class="badge bg-danger text-white mb-1">⛔ DISQUALIFIÉ</span>
                                 }
                                 else if (candidat.DetailsPositifs.Any())
                                 {
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="fas fa-check me-1"></i> @candidat.DetailsPositifs.First()</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle mb-1">
+                                        <i class="fas fa-thumbs-up me-1"></i> @candidat.DetailsPositifs.First()
+                                    </span>
                                 }
                             </td>
                             <td class="text-center">
-                                <span class="badge @colorClass rounded-pill px-3 py-2 shadow-sm" style="font-size: 0.9rem;">
-                                    @candidat.ScoreGlobal %
-                                </span>
+                                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-@scoreColor text-white fw-bold shadow-sm"
+                                     style="width: 45px; height: 45px;">
+                                    @candidat.ScoreGlobal
+                                </div>
                             </td>
-                            <td class="text-end pe-4">
-                                <a asp-controller="Personnes" asp-action="Details" asp-route-id="@candidat.CandidatId"
-                                   class="btn btn-sm btn-light border text-primary">
-                                    <i class="fas fa-eye"></i>
-                                </a>
+                            <td class="text-end pe-4 text-muted">
+                                <i class="fas fa-chevron-down"></i>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="5" class="p-0 border-0">
+                                <div id="@collapseId" class="collapse collapse-content">
+                                    <div class="p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-4 border-end">
+                                                <h6 class="text-primary fw-bold small text-uppercase mb-3">Compétences (@candidat.ScoreCompetences/100)</h6>
+                                                <ul class="list-unstyled small mb-0">
+                                                    @foreach (var p in candidat.DetailsPositifs.Where(d => !d.Contains("Localisation") && !d.Contains("Expérience")))
+                                                    {
+                                                        <li class="text-success mb-1"><i class="fas fa-check me-2"></i>@p</li>
+                                                    }
+                                                    @foreach (var n in candidat.DetailsNegatifs.Where(d => !d.Contains("Ville") && !d.Contains("Expérience") && !d.Contains("DISQUALIFIÉ")))
+                                                    {
+                                                        <li class="text-danger mb-1"><i class="fas fa-times me-2"></i>@n</li>
+                                                    }
+                                                </ul>
+                                            </div>
+
+                                            <div class="col-md-4 border-end">
+                                                <h6 class="text-warning fw-bold small text-uppercase mb-3">Expérience (@candidat.ScoreExperience/100)</h6>
+                                                <ul class="list-unstyled small mb-0">
+                                                    @foreach (var p in candidat.DetailsPositifs.Where(d => d.Contains("Expérience")))
+                                                    {
+                                                        <li class="text-success mb-1"><i class="fas fa-check me-2"></i>@p</li>
+                                                    }
+                                                    @foreach (var n in candidat.DetailsNegatifs.Where(d => d.Contains("Expérience") || d.Contains("Surqualifié")))
+                                                    {
+                                                        <li class="text-danger mb-1"><i class="fas fa-exclamation-circle me-2"></i>@n</li>
+                                                    }
+                                                </ul>
+                                            </div>
+
+                                            <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                                                <div class="text-center mb-3">
+                                                    <span class="d-block text-muted small text-uppercase fw-bold">Note Localisation</span>
+                                                    <span class="h4 text-success fw-bold">@candidat.ScoreLocalisation / 100</span>
+                                                </div>
+                                                <a asp-controller="Personnes" asp-action="Details" asp-route-id="@candidat.CandidatId"
+                                                   class="btn btn-sm btn-outline-dark rounded-pill px-4">
+                                                    Consulter profil complet
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         rang++;
@@ -228,12 +247,61 @@
                 </tbody>
             </table>
 
-            @if (Model.Count == 0)
+            @if (!Model.Any())
             {
-                <div class="text-center py-5 text-muted">
-                    <p>Aucun candidat à analyser.</p>
+                <div class="text-center py-5">
+                    <div class="text-muted opacity-50 mb-3"><i class="fas fa-search fa-3x"></i></div>
+                    <h5 class="text-muted">Aucun candidat ne correspond aux critères.</h5>
                 </div>
             }
         </div>
     </div>
 </div>
+
+@if (topCandidat != null)
+{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var ctx = document.getElementById('radarTopCandidat');
+            if(ctx) {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'radar',
+                    data: {
+                        labels: @Html.Raw(Json.Serialize(topCandidat.ChartLabels)),
+                        datasets: [
+                            {
+                                label: 'Offre',
+                                data: @Html.Raw(Json.Serialize(topCandidat.ChartDataOffre)),
+                                backgroundColor: 'rgba(233, 236, 239, 0.5)',
+                                borderColor: '#adb5bd',
+                                borderDash: [5, 5],
+                                pointRadius: 0
+                            },
+                            {
+                                label: 'Candidat',
+                                data: @Html.Raw(Json.Serialize(topCandidat.ChartDataCandidat)),
+                                backgroundColor: 'rgba(73, 90, 255, 0.2)',
+                                borderColor: '#495aff',
+                                pointBackgroundColor: '#495aff',
+                                borderWidth: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            r: {
+                                angleLines: { display: false },
+                                suggestedMin: 0,
+                                suggestedMax: 5,
+                                ticks: { display: false }
+                            }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        });
+    </script>
+}

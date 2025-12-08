@@ -8,39 +8,86 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<style>
+    /* Styles spécifiques */
+    .icon-box-lg {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.5rem;
+    }
+
+    .skill-card {
+        background: #f8f9fa;
+        transition: transform 0.2s;
+    }
+
+        .skill-card:hover {
+            transform: translateY(-3px);
+            background: #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+    .progress-thin {
+        height: 6px;
+        border-radius: 3px;
+    }
+</style>
+
 <div class="container py-5">
 
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Offres</a></li>
-            <li class="breadcrumb-item active" aria-current="page">@Model.Titre</li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none fw-bold">Offres</a></li>
+            <li class="breadcrumb-item active text-muted" aria-current="page">Fiche de poste</li>
         </ol>
     </nav>
 
     <div class="row g-4">
+
         <div class="col-lg-8">
-            <div class="card shadow-sm border-0 h-100 rounded-4">
+            <div class="card shadow-lg border-0 h-100 rounded-4 overflow-hidden">
+
                 <div class="card-body p-5">
-                    <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4">
                         <div>
-                            <h2 class="fw-bold text-dark mb-1">@Model.Titre</h2>
-                            <span class="badge bg-light text-dark border fw-normal">
-                                <i class="fas fa-briefcase me-1"></i> @Model.Poste?.Intitule
-                            </span>
+                            <h2 class="fw-bold text-dark mb-2">@Model.Titre</h2>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-light text-dark border fw-normal px-3 py-2 rounded-pill">
+                                    <i class="fas fa-briefcase me-2 text-primary"></i> @Model.Poste?.Intitule
+                                </span>
+                                <span class="badge bg-light text-dark border fw-normal px-3 py-2 rounded-pill">
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i> @Model.VilleCible
+                                </span>
+                            </div>
                         </div>
-                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm fw-bold"
-                             style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 1.5rem;">
-                            @Model.Titre.Substring(0, 1)
+                        <div class="mt-3 mt-md-0">
+                            <div class="icon-box-lg text-white shadow-sm fw-bold"
+                                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                @Model.Titre.Substring(0, 1).ToUpper()
+                            </div>
                         </div>
                     </div>
 
-                    <h5 class="text-muted text-uppercase small fw-bold mb-3"><i class="fas fa-align-left me-2"></i>Description du poste</h5>
-                    <p class="text-secondary lh-lg mb-5" style="white-space: pre-line;">
-                        @Model.Description
-                    </p>
+                    <div class="mb-5">
+                        <h6 class="text-uppercase text-muted small fw-bold mb-3 d-flex align-items-center">
+                            <i class="fas fa-align-left me-2"></i>A propos du poste
+                        </h6>
+                        <p class="text-secondary lh-lg" style="white-space: pre-line;">
+                            @(string.IsNullOrWhiteSpace(Model.Description) ? "Aucune description détaillée n'a été fournie pour ce poste." : Model.Description)
+                        </p>
+                    </div>
 
-                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
-                        <h6 class="text-primary fw-bold mb-0"><i class="fas fa-tasks me-2"></i>Compétences Requises</h6>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                        <h6 class="text-primary fw-bold mb-0 text-uppercase small">
+                            <i class="fas fa-tasks me-2"></i>Compétences techniques
+                        </h6>
+                        <span class="badge bg-primary bg-opacity-10 text-primary">
+                            @(Model.CompetenceSouhaitees?.Count ?? 0) Critères
+                        </span>
                     </div>
 
                     @if (Model.CompetenceSouhaitees != null && Model.CompetenceSouhaitees.Any())
@@ -49,19 +96,19 @@
                             @foreach (var item in ((IEnumerable<Projet.Models.CompetenceSouhaitee>)Model.CompetenceSouhaitees).OrderByDescending(x => x.NiveauRequis))
                             {
                                 <div class="col-md-6">
-                                    <div class="p-3 bg-light border-0 rounded-3 position-relative">
+                                    <div class="p-3 border rounded-3 skill-card position-relative">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="fw-bold text-dark">@item.Competence?.Nom</span>
+                                            <span class="small fw-bold text-muted">Niveau @item.NiveauRequis</span>
                                         </div>
                                         <div class="d-flex align-items-center">
-                                            <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                            <div class="progress flex-grow-1 progress-thin">
                                                 @{
                                                     var w = item.NiveauRequis * 20;
-                                                    var c = item.NiveauRequis >= 4 ? "bg-danger" : (item.NiveauRequis >= 3 ? "bg-warning" : "bg-info");
+                                                    var c = item.NiveauRequis >= 4 ? "bg-success" : (item.NiveauRequis >= 3 ? "bg-info" : "bg-warning");
                                                 }
                                                 <div class="progress-bar @c" role="progressbar" style="width: @w%"></div>
                                             </div>
-                                            <span class="small fw-bold text-muted">Niveau @item.NiveauRequis</span>
                                         </div>
                                     </div>
                                 </div>
@@ -70,21 +117,21 @@
                     }
                     else
                     {
-                        <div class="alert alert-warning border-0 small d-flex align-items-center">
-                            <i class="fas fa-exclamation-circle me-2 fa-lg"></i>
-                            <div>Aucune compétence requise définie.</div>
+                        <div class="alert alert-light border text-center text-muted">
+                            <i class="fas fa-info-circle me-2"></i>Aucune compétence technique n'a été définie pour ce poste.
                         </div>
                     }
 
                 </div>
-                <div class="card-footer bg-white border-0 p-4 pt-0">
-                    <hr class="text-muted opacity-25 mb-4">
+
+                <div class="card-footer bg-light border-0 p-4 d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Dernière mise à jour : @(Model.DateCreation?.ToString("dd/MM/yyyy") ?? "-")</small>
                     <div class="d-flex gap-2">
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-light border text-muted fw-bold rounded-pill px-4">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-white border shadow-sm rounded-pill px-4 fw-bold">
                             <i class="fas fa-pen me-2"></i>Modifier
                         </a>
-                        <a asp-controller="Scoring" asp-action="Calculer" asp-route-id="@Model.Id" class="btn btn-primary-gradient px-4 shadow-sm rounded-pill fw-bold">
-                            <i class="fas fa-magic me-2"></i>Lancer le Matching
+                        <a asp-controller="Scoring" asp-action="Calculer" asp-route-id="@Model.Id" class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold">
+                            <i class="fas fa-bolt me-2"></i>Lancer le Matching
                         </a>
                     </div>
                 </div>
@@ -93,33 +140,56 @@
 
         <div class="col-lg-4">
 
-            <div class="card shadow-sm border-0 mb-4 rounded-4">
-                <div class="card-header bg-white fw-bold py-3 rounded-top-4">Critères Clés</div>
+            <div class="card shadow-sm border-0 mb-4 rounded-4 overflow-hidden">
+                <div class="card-header bg-white fw-bold py-3 px-4 border-bottom d-flex align-items-center">
+                    <i class="fas fa-info-circle text-info me-2"></i>Détails Clés
+                </div>
                 <div class="list-group list-group-flush">
                     <div class="list-group-item px-4 py-3 border-0">
-                        <small class="text-muted d-block mb-1">Localisation cible</small>
-                        <span class="fw-bold text-dark"><i class="fas fa-map-marker-alt me-2 text-danger"></i>@Model.VilleCible (@Model.CodePostalCible)</span>
+                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Localisation</small>
+                        <span class="text-dark">@Model.VilleCible (@Model.CodePostalCible)</span>
                     </div>
                     <div class="list-group-item px-4 py-3 border-0 bg-light">
-                        <small class="text-muted d-block mb-1">Date de publication</small>
-                        <span class="fw-bold text-dark"><i class="far fa-calendar-alt me-2 text-info"></i>@(Model.DateCreation?.ToString("dd MMMM yyyy") ?? "N/A")</span>
+                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Expérience Cible</small>
+                        @{
+                            var cibleExp = Model.ParametreScoring?.CibleExperience;
+                            string badgeExp = cibleExp.ToString() switch
+                            {
+                                "Junior" => "Junior (0-2 ans)",
+                                "Confirme" => "Confirmé (2-5 ans)",
+                                "Senior" => "Senior (5+ ans)",
+                                _ => "Non spécifié"
+                            };
+                        }
+                        <span class="text-dark fw-bold">@badgeExp</span>
+                    </div>
+                    <div class="list-group-item px-4 py-3 border-0">
+                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Référence</small>
+                        <span class="text-dark font-monospace">JOB-@Model.Id-@DateTime.Now.Year</span>
                     </div>
                 </div>
             </div>
 
             <div class="card shadow-sm border-0 mb-4 overflow-hidden rounded-4">
-                <div class="card-header bg-white fw-bold py-3 border-bottom">
-                    <i class="fas fa-map me-2 text-primary"></i>Situation Géographique
+                <div class="card-header bg-white fw-bold py-3 px-4 border-bottom">
+                    <i class="fas fa-map-marked-alt me-2 text-success"></i>Lieu du poste
                 </div>
                 <div id="map" style="height: 250px; width: 100%;"></div>
+                <div class="card-footer bg-white text-center py-2 border-0">
+                    <small class="text-muted">Localisation approximative</small>
+                </div>
             </div>
 
             <div class="card border-danger border-opacity-25 bg-danger bg-opacity-10 shadow-sm border-0 rounded-4">
-                <div class="card-body">
-                    <h6 class="text-danger fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Zone Danger</h6>
-                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-danger w-100 mt-2">Supprimer l'offre</a>
+                <div class="card-body p-4">
+                    <h6 class="text-danger fw-bold mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Zone de danger</h6>
+                    <p class="small text-danger opacity-75 mb-3">La suppression de cette offre est définitive.</p>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-danger w-100 fw-bold bg-white">
+                        Supprimer l'offre
+                    </a>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -128,13 +198,13 @@
     document.addEventListener("DOMContentLoaded", function() {
         var ville = "@Html.Raw(Model.VilleCible)";
         var cp = "@Html.Raw(Model.CodePostalCible)";
-        var query = ville + " " + cp + " France"; // On précise France pour aider l'API
+        var query = ville + " " + cp + " France";
 
-        // Vue par défaut (France)
-        var map = L.map('map').setView([46.603354, 1.888334], 5);
+        // Initialisation Carte (Leaflet)
+        var map = L.map('map', { zoomControl: false }).setView([46.603354, 1.888334], 5);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; OpenStreetMap'
         }).addTo(map);
 
         if(ville) {
@@ -146,11 +216,11 @@
                         var lon = data[0].lon;
                         map.setView([lat, lon], 13);
                         L.marker([lat, lon]).addTo(map)
-                            .bindPopup(`<b>${ville}</b><br>Poste basé ici`)
+                            .bindPopup(`<b>${ville}</b><br>Poste à pourvoir`)
                             .openPopup();
                     }
                 })
-                .catch(err => console.error("Erreur géocodage:", err));
+                .catch(console.error);
         }
     });
 </script>

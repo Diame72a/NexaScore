@@ -3,74 +3,108 @@
     ViewData["Title"] = "Créer une offre";
 }
 
+<style>
+    /* Styles pour le Stepper (Barre de progression) */
+    .step-indicator {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+
+    .step-active {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        color: white;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
+    }
+
+    .step-inactive {
+        background-color: #e9ecef;
+        color: #6c757d;
+    }
+
+    .step-line {
+        height: 3px;
+        background-color: #e9ecef;
+        flex-grow: 1;
+        margin: 0 20px;
+        border-radius: 10px;
+    }
+</style>
+
 <div class="container py-5">
 
-    <div class="d-flex align-items-center justify-content-center mb-5">
-        <div class="d-flex align-items-center">
-            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
-                 style="width: 40px; height: 40px; box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2)!important;">
-                1
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="step-indicator step-active">1</div>
+                    <span class="ms-3 fw-bold text-primary text-uppercase small">Informations</span>
+                </div>
+
+                <div class="step-line"></div>
+
+                <div class="d-flex align-items-center opacity-50">
+                    <div class="step-indicator step-inactive">2</div>
+                    <span class="ms-3 fw-bold text-muted text-uppercase small">Ciblage</span>
+                </div>
             </div>
-            <span class="ms-2 fw-bold text-primary small text-uppercase">Informations</span>
-        </div>
-        <div class="mx-3" style="width: 100px; height: 3px; background-color: #e9ecef; border-radius: 10px;"></div>
-        <div class="d-flex align-items-center opacity-50">
-            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 40px; height: 40px;">2</div>
-            <span class="ms-2 fw-bold text-secondary small text-uppercase">Compétences</span>
         </div>
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0 rounded-4">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+
                 <div class="card-header bg-white py-4 px-5 border-bottom">
-                    <h4 class="mb-0 fw-bold text-dark">✨ Nouvelle Opportunité</h4>
-                    <p class="text-muted small mb-0">Définissez les bases du poste.</p>
+                    <h4 class="mb-1 fw-bold text-dark">✨ Nouvelle Opportunité</h4>
+                    <p class="text-muted small mb-0">Définissez les bases du poste à pourvoir.</p>
                 </div>
 
                 <div class="card-body p-5">
                     <form asp-action="Create">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
 
-                        <div class="row g-4 mb-4">
-                            <div class="col-md-7">
-                                <label asp-for="Titre" class="form-label small fw-bold text-muted">TITRE DU POSTE *</label>
-                                <input asp-for="Titre" class="form-control bg-light border-0 py-2" placeholder="Ex: Tech Lead C#" />
-                                <span asp-validation-for="Titre" class="text-danger small"></span>
-                            </div>
-                            <div class="col-md-5">
-                                <label asp-for="PosteId" class="form-label small fw-bold text-muted">MÉTIER RÉFÉRENT</label>
-                                <select asp-for="PosteId" class="form-select bg-light border-0 py-2" asp-items="ViewBag.PosteId"></select>
-                            </div>
+                        <div class="mb-4">
+                            <label asp-for="Titre" class="form-label small fw-bold text-muted text-uppercase">Titre de l'offre <span class="text-danger">*</span></label>
+                            <input asp-for="Titre" class="form-control form-control-lg bg-light border-0" placeholder="Ex: Lead Developer C#" autofocus />
+                            <span asp-validation-for="Titre" class="text-danger small"></span>
                         </div>
 
                         <div class="row g-4 mb-4">
-                            <div class="col-md-8 position-relative">
-                                <label asp-for="VilleCible" class="form-label small fw-bold text-muted">VILLE (AUTO) *</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-0 text-muted ps-3"><i class="fas fa-map-marker-alt"></i></span>
+                            <div class="col-md-6">
+                                <label asp-for="PosteId" class="form-label small fw-bold text-muted text-uppercase">Métier Référent</label>
+                                <select asp-for="PosteId" class="form-select form-select-lg bg-light border-0" asp-items="ViewBag.PosteId"></select>
+                                <div class="form-text small">Utilisé pour la catégorisation.</div>
+                            </div>
 
-                                    <input asp-for="VilleCible" id="inputVille" class="form-control bg-light border-0 py-2" placeholder="Tapez les premières lettres..." autocomplete="off" />
+                            <div class="col-md-6 position-relative">
+                                <label asp-for="VilleCible" class="form-label small fw-bold text-muted text-uppercase">Localisation <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-map-marker-alt text-danger"></i></span>
+                                    <input asp-for="VilleCible" id="inputVille" class="form-control form-control-lg bg-light border-0" placeholder="Rechercher une ville..." autocomplete="off" />
 
                                     <ul id="suggestionsVille" class="dropdown-menu w-100 shadow border-0" style="display:none; max-height: 200px; overflow-y: auto;"></ul>
                                 </div>
                                 <span asp-validation-for="VilleCible" class="text-danger small"></span>
-                            </div>
-                            <div class="col-md-4">
-                                <label asp-for="CodePostalCible" class="form-label small fw-bold text-muted">CODE POSTAL</label>
-                                <input asp-for="CodePostalCible" id="inputCp" class="form-control bg-light border-0 py-2" readonly />
+                                <input asp-for="CodePostalCible" id="inputCp" type="hidden" />
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label asp-for="Description" class="form-label small fw-bold text-muted">DESCRIPTION DÉTAILLÉE</label>
-                            <textarea asp-for="Description" class="form-control bg-light border-0" style="height: 150px"></textarea>
+                            <label asp-for="Description" class="form-label small fw-bold text-muted text-uppercase">Description rapide</label>
+                            <textarea asp-for="Description" class="form-control bg-light border-0 rounded-3" rows="5" placeholder="Décrivez les missions principales, le contexte du projet..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-4">
-                            <a asp-action="Index" class="text-muted text-decoration-none small fw-bold">Annuler</a>
-                            <button type="submit" class="btn btn-primary-gradient rounded-pill px-5 py-3 shadow-sm fw-bold">
-                                Valider et Continuer <i class="fas fa-arrow-right ms-2"></i>
+                        <div class="d-flex justify-content-between align-items-center pt-4 border-top mt-4">
+                            <a asp-action="Index" class="btn btn-link text-muted text-decoration-none fw-bold small">Annuler</a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm">
+                                Suivant : Critères & Scoring <i class="fas fa-arrow-right ms-2"></i>
                             </button>
                         </div>
                     </form>
@@ -85,39 +119,50 @@
     const suggestionsList = document.getElementById('suggestionsVille');
     const inputCp = document.getElementById('inputCp');
 
-    inputVille.addEventListener('input', function() {
-        const query = this.value;
-        if (query.length < 3) {
-            suggestionsList.style.display = 'none';
-            return;
-        }
+    if(inputVille) {
+        inputVille.addEventListener('input', function() {
+            const query = this.value;
+            if (query.length < 3) {
+                suggestionsList.style.display = 'none';
+                return;
+            }
 
-        fetch(`https://geo.api.gouv.fr/communes?nom=${query}&fields=nom,codesPostaux&boost=population&limit=5`)
-            .then(response => response.json())
-            .then(data => {
-                suggestionsList.innerHTML = '';
-                if (data.length > 0) {
-                    suggestionsList.style.display = 'block';
-                    data.forEach(ville => {
-                        const item = document.createElement('li');
-                        item.innerHTML = `<a class="dropdown-item" href="#" style="cursor:pointer;">${ville.nom} (${ville.codesPostaux[0]})</a>`;
-                        item.onclick = function(e) {
-                            e.preventDefault();
-                            inputVille.value = ville.nom;
-                            inputCp.value = ville.codesPostaux[0];
-                            suggestionsList.style.display = 'none';
-                        };
-                        suggestionsList.appendChild(item);
-                    });
-                } else {
-                    suggestionsList.style.display = 'none';
-                }
-            });
-    });
+            // Appel API Gouv
+            fetch(`https://geo.api.gouv.fr/communes?nom=${query}&fields=nom,codesPostaux&boost=population&limit=5`)
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsList.innerHTML = '';
+                    if (data.length > 0) {
+                        suggestionsList.style.display = 'block';
+                        data.forEach(ville => {
+                            const item = document.createElement('li');
+                            // Création de l'élément cliquable
+                            item.innerHTML = `
+                                <a class="dropdown-item py-2 d-flex justify-content-between align-items-center" href="#" style="cursor:pointer;">
+                                    <span>${ville.nom}</span>
+                                    <span class="badge bg-light text-muted border">${ville.codesPostaux[0]}</span>
+                                </a>`;
 
-    document.addEventListener('click', function(e) {
-        if (e.target !== inputVille) {
-            suggestionsList.style.display = 'none';
-        }
-    });
+                            // Gestion du clic
+                            item.onclick = function(e) {
+                                e.preventDefault();
+                                inputVille.value = ville.nom;
+                                inputCp.value = ville.codesPostaux[0]; // Remplissage auto du CP caché
+                                suggestionsList.style.display = 'none';
+                            };
+                            suggestionsList.appendChild(item);
+                        });
+                    } else {
+                        suggestionsList.style.display = 'none';
+                    }
+                });
+        });
+
+        // Fermeture si clic ailleurs
+        document.addEventListener('click', function(e) {
+            if (e.target !== inputVille) {
+                suggestionsList.style.display = 'none';
+            }
+        });
+    }
 </script>

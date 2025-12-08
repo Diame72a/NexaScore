@@ -1,249 +1,209 @@
-﻿@using System.Linq
-@model Projet.Models.Personne
+﻿@model Projet.Models.Personne
 @{
-    ViewData["Title"] = "Modifier le profil";
+    ViewData["Title"] = "Éditer le profil";
 }
 
-<div class="container-fluid py-4">
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+
+    .hover-red:hover {
+        color: #dc3545 !important;
+    }
+</style>
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark">Édition du Profil</h4>
+            <span class="text-muted small">Mise à jour des informations candidat</span>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-white border shadow-sm rounded-pill fw-bold text-primary">
+                <i class="fas fa-eye me-2"></i>Voir le profil
+            </a>
+            <a asp-action="Index" class="btn btn-light rounded-pill border fw-bold text-muted">Retour</a>
+        </div>
+    </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4 rounded-4 px-4 py-3">
-            <i class="fas fa-check-circle fa-lg me-3 text-success"></i>
+        <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4 px-4 d-flex align-items-center">
+            <i class="fas fa-check-circle fa-lg me-3"></i>
             <div>
-                <h6 class="fw-bold mb-0 text-success">Excellent !</h6>
-                <small class="text-success opacity-75">@TempData["SuccessMessage"]</small>
+                <strong>Succès !</strong> @TempData["SuccessMessage"]
             </div>
         </div>
     }
 
-    <div class="d-flex align-items-center justify-content-center mb-5">
-        <div class="d-flex align-items-center opacity-50">
-            <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
-                 style="width: 40px; height: 40px; background: linear-gradient(135deg, #2af598 0%, #009efd 100%);">
-                <i class="fas fa-check"></i>
-            </div>
-            <span class="ms-2 fw-bold text-success small text-uppercase">Informations</span>
-        </div>
-        <div class="mx-3" style="width: 100px; height: 3px; background-color: #d1e7dd; border-radius: 10px;"></div>
-        <div class="d-flex align-items-center">
-            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
-                 style="width: 40px; height: 40px; box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2)!important;">
-                2
-            </div>
-            <span class="ms-2 fw-bold text-primary small text-uppercase">Compétences</span>
-        </div>
-    </div>
+    <form asp-action="Edit">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-0 text-dark">Configuration du Profil</h4>
-            <small class="text-muted">@Model.Prenom @Model.Nom</small>
-        </div>
-        <div class="d-flex gap-2">
-            <a asp-action="Index" class="btn btn-light border rounded-pill px-4 text-muted small fw-bold">
-                <i class="fas fa-arrow-left me-1"></i> Retour liste
-            </a>
-        </div>
-    </div>
+        <div class="row g-4">
 
-    <div class="row g-4">
-
-        <div class="col-lg-6">
-            <div class="card shadow border-0 h-100 rounded-4">
-                <div class="card-header bg-white py-3 px-4 border-bottom">
-                    <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-pen me-2"></i>Informations Générales</h6>
-                </div>
-                <div class="card-body p-4">
-                    <form asp-action="Edit">
-                        <input type="hidden" asp-for="Id" />
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white py-3 px-4 fw-bold text-primary border-bottom">
+                        <i class="fas fa-id-card me-2"></i>Coordonnées
+                    </div>
+                    <div class="card-body p-4">
 
                         <div class="row g-3 mb-3">
                             <div class="col-6">
-                                <label asp-for="Prenom" class="form-label small fw-bold text-muted">PRÉNOM</label>
-                                <input asp-for="Prenom" class="form-control bg-light border-0" />
+                                <label asp-for="Prenom" class="form-label small fw-bold text-muted text-uppercase">Prénom</label>
+                                <input asp-for="Prenom" class="form-control bg-light border-0" placeholder="Ex: Jean" />
+                                <span asp-validation-for="Prenom" class="text-danger small"></span>
                             </div>
                             <div class="col-6">
-                                <label asp-for="Nom" class="form-label small fw-bold text-muted">NOM</label>
-                                <input asp-for="Nom" class="form-control bg-light border-0" />
+                                <label asp-for="Nom" class="form-label small fw-bold text-muted text-uppercase">Nom</label>
+                                <input asp-for="Nom" class="form-control bg-light border-0" placeholder="Ex: Dupont" />
+                                <span asp-validation-for="Nom" class="text-danger small"></span>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Email" class="form-label small fw-bold text-muted">EMAIL</label>
+                            <label asp-for="TitreJobActuel" class="form-label small fw-bold text-muted text-uppercase">Poste Actuel</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="fas fa-briefcase text-muted"></i></span>
+                                <input asp-for="TitreJobActuel" class="form-control bg-light border-0" placeholder="Ex: Développeur Fullstack" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label small fw-bold text-muted text-uppercase">Email</label>
                             <input asp-for="Email" class="form-control bg-light border-0" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Telephone" class="form-label small fw-bold text-muted text-uppercase">Téléphone</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="fas fa-phone text-muted"></i></span>
+                                <input asp-for="Telephone" class="form-control bg-light border-0" placeholder="06 12 34 56 78" />
+                            </div>
                         </div>
 
                         <div class="row g-2 mb-3">
-                            <div class="col-8 position-relative">
-                                <label asp-for="Ville" class="form-label small fw-bold text-muted">VILLE</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-0 text-muted ps-3"><i class="fas fa-map-marker-alt small"></i></span>
-                                    <input asp-for="Ville" id="inputVille" class="form-control bg-light border-0" autocomplete="off" />
-                                    <ul id="suggestionsVille" class="dropdown-menu w-100 shadow border-0" style="display:none; max-height: 200px; overflow-y: auto;"></ul>
-                                </div>
+                            <div class="col-8">
+                                <label asp-for="Ville" class="form-label small fw-bold text-muted text-uppercase">Ville</label>
+                                <input asp-for="Ville" class="form-control bg-light border-0" />
                             </div>
                             <div class="col-4">
-                                <label asp-for="CodePostal" class="form-label small fw-bold text-muted">CP</label>
-                                <input asp-for="CodePostal" id="inputCp" class="form-control bg-light border-0" />
+                                <label asp-for="CodePostal" class="form-label small fw-bold text-muted text-uppercase">CP</label>
+                                <input asp-for="CodePostal" class="form-control bg-light border-0" />
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="AnneesExperienceTotal" class="form-label small fw-bold text-muted">SÉNIORITÉ</label>
-                            <select asp-for="AnneesExperienceTotal" class="form-select bg-light border-0">
-                                <option value="0">🌱 Junior (Débutant)</option>
-                                <option value="1">🌱 Junior (1 an)</option>
-                                <option value="2">🚀 Confirmé (2-3 ans)</option>
-                                <option value="4">🚀 Confirmé (4 ans)</option>
-                                <option value="6">⭐ Senior (5-8 ans)</option>
-                                <option value="10">👑 Expert (+10 ans)</option>
-                            </select>
+                        <div class="mb-2">
+                            <label asp-for="DateNaissance" class="form-label small fw-bold text-muted text-uppercase">Date de Naissance</label>
+                            <input asp-for="DateNaissance" type="date" class="form-control bg-light border-0"
+                                   value="@Model.DateNaissance.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="DateNaissance" class="text-danger small"></span>
                         </div>
 
-                        <div class="d-none">
-                            <input asp-for="DateNaissance" type="date" />
-                        </div>
-
-                        <div class="d-grid pt-2">
-                            <button type="submit" class="btn text-white fw-bold rounded-pill shadow-sm" style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%); border:none;">
-                                <i class="fas fa-save me-2"></i>Enregistrer les modifications
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-6">
-            <div class="card shadow border-0 h-100 rounded-4">
-                <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
-                    <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-layer-group me-2"></i>Stack Technique</h6>
+            <div class="col-lg-7">
 
-                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm" onclick="loadBulkModal(@Model.Id)">
-                        <i class="fas fa-plus me-1"></i> Ajouter (Sélection)
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white py-3 px-4 fw-bold text-success border-bottom">
+                        <i class="fas fa-user-tie me-2"></i>Profil Professionnel
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <label asp-for="AnneesExperienceTotal" class="form-label small fw-bold text-muted text-uppercase">Années d'expérience</label>
+                            <input asp-for="AnneesExperienceTotal" type="number" min="0" class="form-control bg-light border-0 w-50" />
+                            <span asp-validation-for="AnneesExperienceTotal" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-0">
+                            <label asp-for="Description" class="form-label small fw-bold text-muted text-uppercase">Bio / Résumé</label>
+                            <textarea asp-for="Description" class="form-control bg-light border-0" rows="4" placeholder="Brève présentation du parcours, soft-skills, objectifs..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                        <span class="fw-bold text-dark"><i class="fas fa-layer-group me-2"></i>Compétences</span>
+                        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm" onclick="loadBulkModal(@Model.Id)">
+                            <i class="fas fa-plus me-1"></i> Gérer
+                        </button>
+                    </div>
+                    <div class="card-body p-4 bg-light bg-opacity-25">
+
+                        @if (Model.CompetenceAcquises != null && Model.CompetenceAcquises.Any())
+                        {
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var item in Model.CompetenceAcquises.OrderByDescending(x => x.Niveau))
+                                {
+                                    <div class="bg-white px-3 py-2 rounded-3 border shadow-sm d-flex align-items-center">
+                                        <span class="fw-bold me-2 text-dark">@item.Competence?.Nom</span>
+
+                                        @{
+                                            string badgeColor = item.Niveau >= 4 ? "bg-success" : (item.Niveau >= 3 ? "bg-info" : "bg-warning");
+                                        }
+                                        <span class="badge @badgeColor bg-opacity-10 text-dark border fw-normal" style="font-size: 0.7rem;">Nv. @item.Niveau</span>
+
+                                        <form asp-action="SupprimerCompetence" method="post" class="d-inline ms-2">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="hidden" name="source" value="Edit" />
+                                            <button type="submit" class="btn btn-link p-0 text-muted hover-red opacity-50 hover-opacity-100" style="margin-top: -2px;">
+                                                <i class="fas fa-times-circle"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-4 border border-dashed rounded-3">
+                                <i class="fas fa-code mb-2 opacity-50"></i><br />
+                                <small>Aucune compétence technique.</small><br />
+                                <button type="button" class="btn btn-sm btn-link text-primary" onclick="loadBulkModal(@Model.Id)">En ajouter maintenant</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary fw-bold py-3 rounded-pill shadow-sm"
+                            style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%); border:none;">
+                        <i class="fas fa-save me-2"></i> Enregistrer les modifications
                     </button>
                 </div>
 
-                <div class="card-body p-4 bg-light bg-opacity-25">
-                    @if (Model.CompetenceAcquises != null && Model.CompetenceAcquises.Any())
-                    {
-                        <div class="d-flex flex-column gap-3">
-                            @foreach (var item in Model.CompetenceAcquises.OrderByDescending(x => x.Niveau))
-                            {
-                                <div class="p-3 bg-white border-0 rounded-3 shadow-sm d-flex align-items-center justify-content-between transition-hover">
-                                    <div class="d-flex align-items-center" style="width: 45%;">
-                                        <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center me-3 fw-bold"
-                                             style="width: 38px; height: 38px;">
-                                            @item.Competence?.Nom.Substring(0, 1)
-                                        </div>
-                                        <span class="fw-bold text-dark d-block lh-1">@item.Competence?.Nom</span>
-                                    </div>
-
-                                    <div style="width: 40%;">
-                                        <div class="d-flex justify-content-between small mb-1">
-                                            <span class="text-muted">Niveau</span>
-                                            <span class="fw-bold">@item.Niveau/5</span>
-                                        </div>
-                                        <div class="progress" style="height: 5px;">
-                                            <div class="progress-bar @(item.Niveau >= 4 ? "bg-success" : "bg-info")" style="width: @(item.Niveau * 20)%"></div>
-                                        </div>
-                                    </div>
-
-                                    <form asp-action="SupprimerCompetence" method="post">
-                                        <input type="hidden" name="id" value="@item.Id" />
-                                        <input type="hidden" name="source" value="Edit" />
-                                        <button type="submit" class="btn btn-link text-muted p-0 opacity-50 hover-red" title="Retirer">
-                                            <i class="fas fa-times-circle fa-lg"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-5 text-muted h-100 d-flex flex-column justify-content-center align-items-center border border-dashed rounded-3 bg-white">
-                            <div class="mb-3 text-primary opacity-25"><i class="fas fa-code fa-3x"></i></div>
-                            <h6 class="fw-bold text-dark mb-1">Aucune compétence</h6>
-                            <p class="small mb-3 text-muted px-4">Le profil est vide. Ajoutez des compétences pour que ce candidat apparaisse dans le scoring.</p>
-                            <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="loadBulkModal(@Model.Id)">Ajouter maintenant</button>
-                        </div>
-                    }
-                </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
 <div class="modal fade" id="modalBulkAdd" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #2af598 0%, #009efd 100%);">
-                <h5 class="modal-title fw-bold">Ajout Multiple</h5>
+                <h5 class="modal-title fw-bold">Gestion des compétences</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div id="modalBulkContent"><div class="p-5 text-center"><div class="spinner-border text-primary"></div></div></div>
+            <div id="modalBulkContent">
+                <div class="p-5 text-center"><div class="spinner-border text-primary"></div></div>
+            </div>
         </div>
     </div>
 </div>
 
-<style>
-    .hover-red:hover {
-        color: #dc3545 !important;
-    }
-
-    .transition-hover {
-        transition: transform 0.2s;
-    }
-
-        .transition-hover:hover {
-            transform: translateX(5px);
-        }
-</style>
-
 <script>
-    // 1. Autocomplétion (Même code que Create)
-    const inputVille = document.getElementById('inputVille');
-    const suggestionsList = document.getElementById('suggestionsVille');
-    const inputCp = document.getElementById('inputCp');
-
-    if(inputVille) {
-        inputVille.addEventListener('input', function() {
-            const query = this.value;
-            if (query.length < 3) { if(suggestionsList) suggestionsList.style.display = 'none'; return; }
-            fetch(`https://geo.api.gouv.fr/communes?nom=${query}&fields=nom,codesPostaux&boost=population&limit=5`)
-                .then(response => response.json())
-                .then(data => {
-                    if(suggestionsList) {
-                        suggestionsList.innerHTML = '';
-                        if (data.length > 0) {
-                            suggestionsList.style.display = 'block';
-                            data.forEach(ville => {
-                                const item = document.createElement('li');
-                                item.innerHTML = `<a class="dropdown-item" href="#" onclick="selectVille(event, '${ville.nom}', '${ville.codesPostaux[0]}')">${ville.nom} (${ville.codesPostaux[0]})</a>`;
-                                suggestionsList.appendChild(item);
-                            });
-                        } else { suggestionsList.style.display = 'none'; }
-                    }
-                });
-        });
-    }
-
-    function selectVille(e, nom, cp) {
-        e.preventDefault();
-        inputVille.value = nom;
-        inputCp.value = cp;
-        suggestionsList.style.display = 'none';
-    }
-    document.addEventListener('click', function(e) { if (e.target !== inputVille && suggestionsList) suggestionsList.style.display = 'none'; });
-
-    // 2. Script Modale Bulk (Important)
+    // Charge le contenu du modal via AJAX
     function loadBulkModal(personneId) {
         var myModal = new bootstrap.Modal(document.getElementById('modalBulkAdd'));
         myModal.show();
-        // Appel AJAX vers la méthode du contrôleur Personnes
         fetch('/Personnes/AjouterPlusieurs/' + personneId)
             .then(r => r.text())
             .then(h => document.getElementById('modalBulkContent').innerHTML = h);

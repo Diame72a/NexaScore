@@ -18,47 +18,45 @@ namespace Projet.Controllers
         }
 
         // ============================================================
-        // 1. INDEX (LISTE AVEC RECHERCHE ET FILTRES)
+        // 1. INDEX (LISTE AVEC RECHERCHE ET DASHBOARD)
         // ============================================================
         public async Task<IActionResult> Index(string searchString, string villeFilter)
         {
             var query = _context.Personnes.AsQueryable();
 
-            // Filtre par Texte (Nom, Prénom ou Email)
+            // 1. Filtre Global (Nom, Prénom, Email + NOUVEAU: TitreJobActuel)
             if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(p => p.Nom.Contains(searchString)
                                       || p.Prenom.Contains(searchString)
-                                      || p.Email.Contains(searchString));
+                                      || p.Email.Contains(searchString)
+                                      || (p.TitreJobActuel != null && p.TitreJobActuel.Contains(searchString)));
             }
 
-            // Filtre par Ville
+            // 2. Filtre Ville
             if (!string.IsNullOrEmpty(villeFilter))
             {
                 query = query.Where(p => p.Ville == villeFilter);
             }
 
-            // Récupération des données triées par ID décroissant (les plus récents en premier)
+            // 3. Récupération des résultats
             var candidats = await query.OrderByDescending(p => p.Id).ToListAsync();
 
-            // --- DONNÉES POUR LES FILTRES ET GRAPHIQUES ---
+            // --- DONNÉES POUR LA VUE (Statistiques & Filtres) ---
 
-            // Liste des villes uniques pour le dropdown
+            // Dropdown Villes
             ViewBag.Villes = await _context.Personnes
-                                           .Select(p => p.Ville)
-                                           .Distinct()
-                                           .OrderBy(v => v)
-                                           .ToListAsync();
+                .Where(p => p.Ville != null)
+                .Select(p => p.Ville)
+                .Distinct()
+                .OrderBy(v => v)
+                .ToListAsync();
 
-            // Stats pour le graphique "Expérience"
-            int junior = candidats.Count(p => p.AnneesExperienceTotal < 2);
-            int confirme = candidats.Count(p => p.AnneesExperienceTotal >= 2 && p.AnneesExperienceTotal < 5);
-            int senior = candidats.Count(p => p.AnneesExperienceTotal >= 5);
+            // Stats Rapides pour le Dashboard
+            ViewBag.TotalCandidats = await _context.Personnes.CountAsync();
+            ViewBag.TotalExperts = await _context.Personnes.CountAsync(p => (p.AnneesExperienceTotal ?? 0) >= 5);
 
-            ViewBag.ExpLabels = new List<string> { "Junior", "Confirmé", "Senior" };
-            ViewBag.ExpData = new List<int> { junior, confirme, senior };
-
-            // On renvoie les filtres actuels à la vue
+            // Filtres actuels (pour garder la sélection dans la vue)
             ViewData["CurrentFilter"] = searchString;
             ViewData["CurrentVille"] = villeFilter;
 
@@ -77,41 +75,38 @@ namespace Projet.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Personne personne)
         {
-            // On ignore la validation des compétences car elles sont ajoutées à l'étape 2
+            // On ignore la validation des compétences (étape suivante)
             ModelState.Remove("CompetenceAcquises");
 
-            // VALIDATION DATE (DateOnly vs DateTime)
-            var dateDuJour = DateOnly.FromDateTime(DateTime.Now);
+            // VALIDATION DATE (DateOnly)
+            var today = DateOnly.FromDateTime(DateTime.Now);
 
-            if (personne.DateNaissance > dateDuJour)
+            if (personne.DateNaissance > today)
                 ModelState.AddModelError("DateNaissance", "La date de naissance ne peut pas être dans le futur.");
 
             if (personne.DateNaissance.Year < 1900)
-                ModelState.AddModelError("DateNaissance", "Année de naissance invalide (trop ancienne).");
+                ModelState.AddModelError("DateNaissance", "Année de naissance invalide.");
 
             if (ModelState.IsValid)
             {
                 _context.Add(personne);
                 await _context.SaveChangesAsync();
 
-                // Redirection vers l'Étape 2 (Edit) avec message de succès
-                TempData["SuccessMessage"] = "Profil créé avec succès ! Ajoutez maintenant les compétences.";
+                TempData["SuccessMessage"] = "Profil créé ! Complétez maintenant les informations.";
                 return RedirectToAction(nameof(Edit), new { id = personne.Id });
             }
             return View(personne);
         }
 
         // ============================================================
-        // 3. EDIT (MODIFICATION ET GESTION COMPÉTENCES)
+        // 3. EDIT (MODIFICATION COMPLÈTE)
         // ============================================================
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            // IMPORTANT : On charge la personne ET ses compétences associées
             var personne = await _context.Personnes
-                .Include(p => p.CompetenceAcquises)
-                    .ThenInclude(ca => ca.Competence) // Pour afficher le nom "Java" et pas juste l'ID
+                .Include(p => p.CompetenceAcquises).ThenInclude(c => c.Competence)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (personne == null) return NotFound();
@@ -125,36 +120,41 @@ namespace Projet.Controllers
         {
             if (id != personne.Id) return NotFound();
 
-            // On ignore la validation de la liste qui n'est pas envoyée par le formulaire principal
             ModelState.Remove("CompetenceAcquises");
 
-            // VALIDATION DATE
-            var dateDuJour = DateOnly.FromDateTime(DateTime.Now);
-            if (personne.DateNaissance > dateDuJour)
-                ModelState.AddModelError("DateNaissance", "La date ne peut pas être dans le futur.");
+            // Validation DateOnly
+            var today = DateOnly.FromDateTime(DateTime.Now);
+            if (personne.DateNaissance > today)
+                ModelState.AddModelError("DateNaissance", "Date invalide.");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // 1. On récupère l'objet original en base pour éviter les conflits
+                    // 1. Récupération de l'objet original
                     var original = await _context.Personnes.FindAsync(id);
                     if (original == null) return NotFound();
 
-                    // 2. On met à jour manuellement les champs modifiables
+                    // 2. Mise à jour des champs (Y compris les nouveaux)
                     original.Nom = personne.Nom;
                     original.Prenom = personne.Prenom;
                     original.Email = personne.Email;
+                    original.Telephone = personne.Telephone;         // Nouveau
+                    original.TitreJobActuel = personne.TitreJobActuel; // Nouveau
+                    original.Description = personne.Description;     // Nouveau
                     original.Ville = personne.Ville;
                     original.CodePostal = personne.CodePostal;
                     original.DateNaissance = personne.DateNaissance;
                     original.AnneesExperienceTotal = personne.AnneesExperienceTotal;
 
-                    // 3. On sauvegarde
+                    // 3. Sauvegarde
                     _context.Update(original);
                     await _context.SaveChangesAsync();
 
-                    return RedirectToAction(nameof(Index));
+                    TempData["SuccessMessage"] = "Profil mis à jour avec succès.";
+
+                    // On recharge la page Edit pour voir les changements
+                    return RedirectToAction(nameof(Edit), new { id = personne.Id });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -163,11 +163,11 @@ namespace Projet.Controllers
                 }
                 catch (DbUpdateException)
                 {
-                    ModelState.AddModelError("Email", "Cet email semble déjà exister.");
+                    ModelState.AddModelError("Email", "Erreur lors de la sauvegarde (Email en double ?).");
                 }
             }
 
-            // En cas d'erreur, on doit recharger les compétences pour l'affichage
+            // En cas d'erreur de validation, on recharge les compétences pour l'affichage
             var pComplet = await _context.Personnes
                 .Include(p => p.CompetenceAcquises).ThenInclude(c => c.Competence)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -182,7 +182,6 @@ namespace Projet.Controllers
         // 4. GESTION DES COMPÉTENCES (BULK ADD & DELETE)
         // ============================================================
 
-        // Affiche la modale avec les compétences non encore possédées
         [HttpGet]
         public async Task<IActionResult> AjouterPlusieurs(int id)
         {
@@ -192,7 +191,6 @@ namespace Projet.Controllers
 
             if (personne == null) return NotFound();
 
-            // On filtre pour ne proposer que ce qu'il n'a pas encore
             var idsExistants = personne.CompetenceAcquises.Select(c => c.CompetenceId).ToList();
             var competencesDispo = await _context.Competences
                 .Where(c => !idsExistants.Contains(c.Id))
@@ -214,7 +212,6 @@ namespace Projet.Controllers
             return PartialView("_AjoutMultiplePartial", model);
         }
 
-        // Traite le formulaire de la modale
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AjouterPlusieurs(PersonneBulkCompetenceViewModel model)
@@ -229,16 +226,14 @@ namespace Projet.Controllers
                     {
                         PersonneId = model.PersonneId,
                         CompetenceId = item.CompetenceId,
-                        Niveau = item.NiveauRequis // Ici "NiveauRequis" sert de stockage pour le Niveau réel
+                        Niveau = item.NiveauRequis
                     });
                 }
                 await _context.SaveChangesAsync();
             }
-            // On redirige vers Edit pour voir les changements
             return RedirectToAction(nameof(Edit), new { id = model.PersonneId });
         }
 
-        // Supprime une compétence
         [HttpPost]
         public async Task<IActionResult> SupprimerCompetence(int id, string source)
         {
@@ -249,7 +244,6 @@ namespace Projet.Controllers
                 _context.CompetenceAcquises.Remove(comp);
                 await _context.SaveChangesAsync();
 
-                // Redirection intelligente selon d'où on vient
                 if (source == "Edit") return RedirectToAction(nameof(Edit), new { id = pid });
                 return RedirectToAction(nameof(Details), new { id = pid });
             }
@@ -257,7 +251,7 @@ namespace Projet.Controllers
         }
 
         // ============================================================
-        // 5. DETAILS & DELETE (STANDARD)
+        // 5. DETAILS & DELETE
         // ============================================================
         public async Task<IActionResult> Details(int? id)
         {

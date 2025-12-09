@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Projet.Models;
-using Projet.Services; // IMPORTANT
+using Projet.Services; 
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -13,18 +13,16 @@ namespace Projet.Controllers
     public class CompetencesController : Controller
     {
         private readonly ProjetContext _context;
-        private readonly INotificationService _notifService; // 1. Déclaration
+        private readonly INotificationService _notifService; 
 
-        // 2. Injection
+
         public CompetencesController(ProjetContext context, INotificationService notifService)
         {
             _context = context;
             _notifService = notifService;
         }
 
-        // ============================================================
-        // 1. INDEX
-        // ============================================================
+
         public async Task<IActionResult> Index(string searchString, string sortOrder)
         {
             var query = _context.Competences.AsQueryable();
@@ -48,7 +46,7 @@ namespace Projet.Controllers
 
             var competences = await query.ToListAsync();
 
-            // Stats pour le graphique (Top 5 Compétences demandées)
+
             var topCompetences = await _context.CompetenceSouhaitees
                 .Include(cs => cs.Competence)
                 .GroupBy(cs => cs.Competence.Nom)
@@ -73,9 +71,7 @@ namespace Projet.Controllers
             return View(competences);
         }
 
-        // ============================================================
-        // 2. CREATE
-        // ============================================================
+
         public IActionResult Create()
         {
             return View();
@@ -90,7 +86,7 @@ namespace Projet.Controllers
                 _context.Add(competence);
                 await _context.SaveChangesAsync();
 
-                // --- NOTIF ---
+
                 await _notifService.Ajouter(
                     "Catalogue mis à jour",
                     $"La compétence '{competence.Nom}' a été ajoutée.",
@@ -103,9 +99,7 @@ namespace Projet.Controllers
             return View(competence);
         }
 
-        // ============================================================
-        // 3. EDIT
-        // ============================================================
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -127,8 +121,7 @@ namespace Projet.Controllers
                     _context.Update(competence);
                     await _context.SaveChangesAsync();
 
-                    // --- NOTIF (Optionnel) ---
-                    // await _notifService.Ajouter("Modification", $"Compétence '{competence.Nom}' mise à jour.", "fas fa-pen", "text-secondary");
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -140,9 +133,7 @@ namespace Projet.Controllers
             return View(competence);
         }
 
-        // ============================================================
-        // 4. DETAILS & DELETE
-        // ============================================================
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -170,7 +161,7 @@ namespace Projet.Controllers
                 _context.Competences.Remove(competence);
                 await _context.SaveChangesAsync();
 
-                // --- NOTIF ---
+
                 await _notifService.Ajouter(
                     "Catalogue Nettoyé",
                     $"La compétence '{nom}' a été supprimée.",

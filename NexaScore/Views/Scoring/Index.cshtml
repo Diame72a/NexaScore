@@ -3,13 +3,13 @@
 @{
     ViewData["Title"] = "Centre de Matching";
 
-    // Calcul pour les stats rapides (sécurisé)
+
     var totalOffres = Model != null ? Model.Count() : 0;
     var totalCandidats = (int)(ViewBag.TotalCandidats ?? 0);
 }
 
 <style>
-    /* Styles personnalisés pour le Dashboard */
+
     .hover-shadow:hover {
         box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
         transform: translateY(-2px);
@@ -33,7 +33,7 @@
         transition: background-color 0.2s ease;
     }
 
-    /* Dégradé doux pour le fond */
+
     .bg-gradient-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
@@ -189,12 +189,7 @@
                                             <a asp-action="Calculer" asp-route-id="@item.Id"
                                                class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm"
                                                title="Lancer le matching IA">
-                                                <i class="fas fa-magic me-1"></i> Matcher
-                                            </a>
-                                            <a asp-controller="Offres" asp-action="Edit" asp-route-id="@item.Id"
-                                               class="btn btn-light btn-sm rounded-circle shadow-sm border text-muted ms-1"
-                                               title="Modifier les critères">
-                                                <i class="fas fa-cog"></i>
+                                                <i class="fas fa-magic me-1"></i> Analyser
                                             </a>
                                         </td>
                                     </tr>

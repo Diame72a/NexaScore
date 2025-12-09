@@ -1,6 +1,6 @@
 ﻿namespace Projet.Models
 {
-    // Cette classe est un DTO (Data Transfer Object) comme expliquer précédement.
+
     public class ActiviteRecente
     {
         public int Id { get; set; }

@@ -9,7 +9,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-    /* Styles spécifiques */
+
     .icon-box-lg {
         width: 50px;
         height: 50px;
@@ -200,7 +200,7 @@
         var cp = "@Html.Raw(Model.CodePostalCible)";
         var query = ville + " " + cp + " France";
 
-        // Initialisation Carte (Leaflet)
+
         var map = L.map('map', { zoomControl: false }).setView([46.603354, 1.888334], 5);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

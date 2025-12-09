@@ -29,7 +29,7 @@ public partial class Personne
     public string? ImageBannierePath { get; set; } 
     public string? CvPath { get; set; }            
     public string? CvNomFichier { get; set; }      
-    // -------------------------------
+
 
     public virtual ICollection<CompetenceAcquise> CompetenceAcquises { get; set; } = new List<CompetenceAcquise>();
 }

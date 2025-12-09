@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Projet.Services
 {
-    // Interface pour pouvoir l'injecter partout
+
     public interface INotificationService
     {
         Task Ajouter(string titre, string message, string icon, string color, string? url = null);

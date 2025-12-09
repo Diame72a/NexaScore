@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Projet.Models;
-using Projet.Services; // IMPORTANT
+using Projet.Services; 
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -13,18 +13,16 @@ namespace Projet.Controllers
     public class PostesController : Controller
     {
         private readonly ProjetContext _context;
-        private readonly INotificationService _notifService; // 1. Déclaration
+        private readonly INotificationService _notifService; 
 
-        // 2. Injection
+
         public PostesController(ProjetContext context, INotificationService notifService)
         {
             _context = context;
             _notifService = notifService;
         }
 
-        // ============================================================
-        // 1. INDEX
-        // ============================================================
+
         public async Task<IActionResult> Index(string searchString)
         {
             var query = _context.Postes.AsQueryable();
@@ -36,7 +34,7 @@ namespace Projet.Controllers
 
             var postes = await query.OrderBy(p => p.Intitule).ToListAsync();
 
-            // Stats pour le graphique (Top 5 Postes les plus demandés)
+
             var topPostes = await _context.Offres
                 .Include(o => o.Poste)
                 .GroupBy(o => o.Poste.Intitule)
@@ -61,9 +59,7 @@ namespace Projet.Controllers
             return View(postes);
         }
 
-        // ============================================================
-        // 2. CREATE
-        // ============================================================
+
         public IActionResult Create()
         {
             return View();
@@ -78,7 +74,7 @@ namespace Projet.Controllers
                 _context.Add(poste);
                 await _context.SaveChangesAsync();
 
-                // --- NOTIF ---
+
                 await _notifService.Ajouter(
                     "Référentiel Mis à jour",
                     $"Le métier '{poste.Intitule}' a été ajouté à la base.",
@@ -91,9 +87,7 @@ namespace Projet.Controllers
             return View(poste);
         }
 
-        // ============================================================
-        // 3. EDIT
-        // ============================================================
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -115,8 +109,7 @@ namespace Projet.Controllers
                     _context.Update(poste);
                     await _context.SaveChangesAsync();
 
-                    // --- NOTIF (Optionnel pour éviter le spam, mais utile pour tracer) ---
-                    // await _notifService.Ajouter("Modification Référentiel", $"Métier '{poste.Intitule}' modifié.", "fas fa-pen", "text-secondary");
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -128,9 +121,7 @@ namespace Projet.Controllers
             return View(poste);
         }
 
-        // ============================================================
-        // 4. DETAILS & DELETE
-        // ============================================================
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -164,7 +155,7 @@ namespace Projet.Controllers
                 _context.Postes.Remove(poste);
                 await _context.SaveChangesAsync();
 
-                // --- NOTIF ---
+
                 await _notifService.Ajouter(
                     "Référentiel Nettoyé",
                     $"Le métier '{nom}' a été supprimé.",

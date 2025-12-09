@@ -2,11 +2,11 @@
 
 namespace Projet.Models
 {
-    // 1. On définit les choix possibles pour le recruteur
+
     public enum NiveauExperienceCible
     {
         [Display(Name = "Peu importe (Plus c'est mieux)")]
-        PeuImporte = 0, // Comportement actuel par défaut
+        PeuImporte = 0, 
 
         [Display(Name = "Junior (0-2 ans)")]
         Junior = 1,

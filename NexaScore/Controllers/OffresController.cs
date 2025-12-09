@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Projet.Models;
-using Projet.Services; // IMPORTANT
+using Projet.Services; 
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,9 +23,7 @@ namespace Projet.Controllers
             _notifService = notifService;
         }
 
-        // ============================================================
-        // 1. INDEX (LISTE AVEC FILTRES & DASHBOARD)
-        // ============================================================
+
         public async Task<IActionResult> Index(string searchString, int? posteId)
         {
             var query = _context.Offres.Include(o => o.Poste).AsQueryable();
@@ -42,7 +40,7 @@ namespace Projet.Controllers
 
             var offres = await query.OrderByDescending(o => o.DateCreation).ToListAsync();
 
-            // Stats pour le graphique (Répartition Géo)
+            
             var statsVilles = offres
                 .GroupBy(o => o.VilleCible)
                 .Select(g => new { Ville = g.Key, Nombre = g.Count() })
@@ -51,9 +49,9 @@ namespace Projet.Controllers
             ViewBag.VillesLabels = statsVilles.Select(s => s.Ville).ToList();
             ViewBag.VillesData = statsVilles.Select(s => s.Nombre).ToList();
 
-            // Data pour la Vue
+            
             ViewBag.Postes = await _context.Postes.OrderBy(p => p.Intitule).ToListAsync();
-            ViewBag.TotalCandidats = await _context.Personnes.CountAsync(); // KPI Vivier
+            ViewBag.TotalCandidats = await _context.Personnes.CountAsync(); 
 
             ViewData["CurrentFilter"] = searchString;
             ViewData["CurrentPoste"] = posteId;
@@ -61,9 +59,7 @@ namespace Projet.Controllers
             return View(offres);
         }
 
-        // ============================================================
-        // 2. CREATE (WIZARD ÉTAPE 1)
-        // ============================================================
+
         public IActionResult Create()
         {
             ViewBag.PosteId = new SelectList(_context.Postes, "Id", "Intitule");
@@ -76,20 +72,20 @@ namespace Projet.Controllers
         {
             offre.DateCreation = DateTime.Now;
             ModelState.Remove("Poste");
-            ModelState.Remove("CompetenceSouhaitees"); // Étape 2
+            ModelState.Remove("CompetenceSouhaitees"); 
 
             if (ModelState.IsValid)
             {
-                // 1. Création de l'offre
+
                 _context.Add(offre);
                 await _context.SaveChangesAsync();
 
-                // 2. Création des paramètres de scoring par défaut
+
                 var paramsScoring = new ParametreScoring { OffreId = offre.Id };
                 _context.Add(paramsScoring);
                 await _context.SaveChangesAsync();
 
-                // 3. Notification Automatique
+
                 await _notifService.Ajouter(
                     "Nouvelle Offre",
                     $"Le poste '{offre.Titre}' a été ouvert.",
@@ -106,9 +102,7 @@ namespace Projet.Controllers
             return View(offre);
         }
 
-        // ============================================================
-        // 3. EDIT (WIZARD ÉTAPE 2 : COMPÉTENCES & SCORING)
-        // ============================================================
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -146,14 +140,14 @@ namespace Projet.Controllers
 
                     if (original == null) return NotFound();
 
-                    // Update champs classiques
+
                     original.Titre = offre.Titre;
                     original.Description = offre.Description;
                     original.VilleCible = offre.VilleCible;
                     original.CodePostalCible = offre.CodePostalCible;
                     original.PosteId = offre.PosteId;
 
-                    // Update Paramètres Scoring
+     
                     if (original.ParametreScoring == null)
                     {
                         original.ParametreScoring = new ParametreScoring { OffreId = original.Id };
@@ -171,16 +165,14 @@ namespace Projet.Controllers
                 }
                 catch (DbUpdateConcurrencyException) { throw; }
 
-                return RedirectToAction(nameof(Edit), new { id = id }); // Reste sur la page pour continuer
+                return RedirectToAction(nameof(Edit), new { id = id }); 
             }
 
             ViewBag.PosteId = new SelectList(_context.Postes, "Id", "Intitule", offre.PosteId);
             return View(offre);
         }
 
-        // ============================================================
-        // 4. GESTION DES COMPÉTENCES (MODALE AJAX)
-        // ============================================================
+
         [HttpGet]
         public async Task<IActionResult> AjouterPlusieurs(int id)
         {
@@ -201,7 +193,7 @@ namespace Projet.Controllers
                     CompetenceId = c.Id,
                     Nom = c.Nom,
                     EstSelectionne = false,
-                    NiveauRequis = 3 // Niveau par défaut (intermédiaire)
+                    NiveauRequis = 3 
                 }).ToList()
             };
             return PartialView("_AjoutMultiplePartial", model);
@@ -244,9 +236,7 @@ namespace Projet.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ============================================================
-        // 5. DETAILS & DELETE
-        // ============================================================
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -278,7 +268,7 @@ namespace Projet.Controllers
                 _context.Offres.Remove(offre);
                 await _context.SaveChangesAsync();
 
-                // Notification suppression
+                
                 await _notifService.Ajouter(
                     "Offre Supprimée",
                     $"Le poste '{titre}' a été retiré.",

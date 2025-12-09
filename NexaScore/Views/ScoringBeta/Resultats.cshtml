@@ -37,15 +37,15 @@
         {
             @foreach (var match in Model)
             {
-                // Protection contre une offre nulle (très rare mais possible)
+
                 if (match.Offre == null) continue;
 
-                // Logique de couleur dynamique selon le score
+
                 string gradient = match.Score >= 75
-                ? "linear-gradient(135deg, #1cc88a 0%, #13855c 100%)" // Vert (Excellent)
+                ? "linear-gradient(135deg, #1cc88a 0%, #13855c 100%)" 
                 : (match.Score >= 50
-                ? "linear-gradient(135deg, #4e73df 0%, #224abe 100%)" // Bleu (Moyen)
-                : "linear-gradient(135deg, #f6c23e 0%, #fd7e14 100%)"); // Orange (Faible)
+                ? "linear-gradient(135deg, #4e73df 0%, #224abe 100%)" 
+                : "linear-gradient(135deg, #f6c23e 0%, #fd7e14 100%)"); 
 
                 <div class="col-12">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3 hover-lift">

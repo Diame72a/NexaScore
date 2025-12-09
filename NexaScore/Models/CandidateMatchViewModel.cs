@@ -9,7 +9,7 @@ namespace Projet.Models
         public string NomComplet { get; set; } = string.Empty;
         public string JobActuel { get; set; } = string.Empty;
 
-        // --- LES SCORES ---
+
         public int ScoreGlobal { get; set; } 
 
         public int ScoreCompetences { get; set; }

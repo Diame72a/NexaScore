@@ -32,15 +32,13 @@ namespace Projet.Controllers
         [HttpPost]
         public async Task<IActionResult> SeedData(int nbCandidats = 30, int nbOffres = 10, int nbPostes = 5, int nbCompetences = 5)
         {
-            // Sécurités basiques
+
             if (nbCandidats < 0) nbCandidats = 0; if (nbCandidats > 500) nbCandidats = 500;
             if (nbOffres < 0) nbOffres = 0; if (nbOffres > 200) nbOffres = 200;
             if (nbPostes < 0) nbPostes = 0; if (nbPostes > 100) nbPostes = 100;
             if (nbCompetences < 0) nbCompetences = 0; if (nbCompetences > 100) nbCompetences = 100;
 
-            // ---------------------------------------------------------------------
-            // 1. AJOUT POSTES
-            // ---------------------------------------------------------------------
+
             if (nbPostes > 0)
             {
                 var fakerPoste = new Faker<Poste>("fr").RuleFor(p => p.Intitule, f => f.Name.JobTitle());
@@ -48,16 +46,14 @@ namespace Projet.Controllers
                 _context.Postes.AddRange(nouveaux);
                 await _context.SaveChangesAsync();
             }
-            // Sécurité : toujours avoir au moins 1 poste
+
             if (!await _context.Postes.AnyAsync())
             {
                 _context.Postes.Add(new Poste { Intitule = "Développeur Fullstack" });
                 await _context.SaveChangesAsync();
             }
 
-            // ---------------------------------------------------------------------
-            // 2. AJOUT COMPÉTENCES
-            // ---------------------------------------------------------------------
+
             if (nbCompetences > 0)
             {
                 var fakerComp = new Faker<Competence>("fr")
@@ -66,22 +62,18 @@ namespace Projet.Controllers
                 _context.Competences.AddRange(nouvelles);
                 await _context.SaveChangesAsync();
             }
-            // Sécurité : toujours avoir au moins 1 compétence
+
             if (!await _context.Competences.AnyAsync())
             {
                 _context.Competences.Add(new Competence { Nom = "C#" });
                 await _context.SaveChangesAsync();
             }
 
-            // ---------------------------------------------------------------------
-            // CHARGEMENT DES LISTES (CRUCIAL)
-            // ---------------------------------------------------------------------
+
             var dbPostes = await _context.Postes.ToListAsync();
             var dbCompetences = await _context.Competences.ToListAsync();
 
-            // ---------------------------------------------------------------------
-            // 3. CANDIDATS
-            // ---------------------------------------------------------------------
+
             if (nbCandidats > 0)
             {
                 var fakerPersonne = new Faker<Personne>("fr")
@@ -93,7 +85,6 @@ namespace Projet.Controllers
                     .RuleFor(p => p.Telephone, f => f.Phone.PhoneNumber("06########"))
                     .RuleFor(p => p.DateNaissance, f => DateOnly.FromDateTime(f.Date.Past(40, DateTime.Now.AddYears(-20))))
                     .RuleFor(p => p.AnneesExperienceTotal, f => f.Random.Int(0, 20))
-                    // On prend un poste au hasard dans la liste chargée
                     .RuleFor(p => p.TitreJobActuel, f => f.PickRandom(dbPostes).Intitule)
                     .RuleFor(p => p.Description, f => f.Lorem.Sentences(2));
 
@@ -101,14 +92,12 @@ namespace Projet.Controllers
                 _context.Personnes.AddRange(nouveauxCandidats);
                 await _context.SaveChangesAsync();
 
-                // LIAISONS COMPÉTENCES (C'est ici que ça plantait)
                 var faker = new Faker();
                 var liens = new List<CompetenceAcquise>();
 
                 foreach (var c in nouveauxCandidats)
                 {
-                    // CORRECTION : On calcule combien on peut en prendre au maximum
-                    // On veut entre 2 et 6, MAIS pas plus que le nombre total dispo (dbCompetences.Count)
+
                     int maxPossible = dbCompetences.Count;
                     int nombreAVouloir = faker.Random.Int(2, 6);
                     int nombreFinal = Math.Min(nombreAVouloir, maxPossible);
@@ -126,9 +115,7 @@ namespace Projet.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            // ---------------------------------------------------------------------
-            // 4. OFFRES
-            // ---------------------------------------------------------------------
+
             if (nbOffres > 0)
             {
                 var fakerOffre = new Faker<Offre>("fr")
@@ -148,7 +135,7 @@ namespace Projet.Controllers
                 _context.Offres.AddRange(nouvellesOffres);
                 await _context.SaveChangesAsync();
 
-                // SCORING + SKILLS REQUIS (Sécurisé aussi)
+
                 var faker = new Faker();
                 var paramsScoring = new List<ParametreScoring>();
                 var skillsRequises = new List<CompetenceSouhaitee>();
@@ -164,7 +151,7 @@ namespace Projet.Controllers
                         ExclureSiVilleDiff = faker.Random.Bool(0.2f)
                     });
 
-                    // CORRECTION ICI AUSSI
+
                     int maxPossible = dbCompetences.Count;
                     int nombreAVouloir = faker.Random.Int(3, 5);
                     int nombreFinal = Math.Min(nombreAVouloir, maxPossible);

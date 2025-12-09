@@ -2,13 +2,13 @@
 @{
     ViewData["Title"] = "Gestion des Offres";
 
-    // Calculs pour les badges et stats
+
     int totalOffres = Model.Count();
     int offresRecentes = Model.Count(o => (DateTime.Now - (o.DateCreation ?? DateTime.Now)).TotalDays < 7);
 }
 
 <style>
-    /* Styles spécifiques Dashboard Offres */
+
     .border-left-primary {
         border-left: 4px solid #4e73df !important;
     }
@@ -117,7 +117,7 @@
                                 <option value="">Toutes les catégories</option>
                                 @if (ViewBag.Postes != null)
                                 {
-                                    foreach (var p in (IEnumerable<dynamic>)ViewBag.Postes) // Adaptation dynamique
+                                    foreach (var p in (IEnumerable<dynamic>)ViewBag.Postes) 
                                     {
                                         <option value="@p.Id" selected="@((int?)ViewData["CurrentPoste"] == p.Id)">@p.Intitule</option>
                                     }
@@ -158,7 +158,7 @@
                             {
                                 @foreach (var item in Model)
                                 {
-                                    // Calcul ancienneté sécurisé
+
                                     DateTime dateSafe = item.DateCreation ?? DateTime.Now;
                                     bool isNew = (DateTime.Now - dateSafe).TotalDays < 7;
 

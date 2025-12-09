@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Éditer le profil";
 
-    // Images par défaut
+
     string defaultBanner = "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1000&q=80";
     string currentBanner = !string.IsNullOrEmpty(Model.ImageBannierePath) ? Model.ImageBannierePath : defaultBanner;
 }
@@ -11,7 +11,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-    /* Styles Upload */
+
     .file-upload-wrapper {
         position: relative;
         overflow: hidden;
@@ -49,7 +49,7 @@
         z-index: 10;
     }
 
-    /* Styles Formulaire */
+
     .form-control:focus, .form-select:focus {
         border-color: #86b7fe;
         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
@@ -275,7 +275,7 @@
 </div>
 
 <script>
-    // --- 1. PREVIEW IMAGE ---
+
     function previewImage(input, imgId, placeholderId) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
@@ -289,7 +289,7 @@
         }
     }
 
-    // --- 2. MODAL ---
+
     function loadBulkModal(personneId) {
         var myModal = new bootstrap.Modal(document.getElementById('modalBulkAdd'));
         myModal.show();
@@ -298,19 +298,19 @@
             .then(h => document.getElementById('modalBulkContent').innerHTML = h);
     }
 
-    // --- 3. CARTE & AUTOCOMPLETE (Code Complet) ---
+
     var mapInstance;
     var markerInstance;
 
     document.addEventListener("DOMContentLoaded", function() {
 
-        // Init Map
+
         var mapElement = document.getElementById('map');
         if (mapElement) {
             mapInstance = L.map('map', { zoomControl: false }).setView([46.603354, 1.888334], 5);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(mapInstance);
 
-            // Pré-chargement si une ville existe déjà (IMPORTANT)
+
             var villeInit = "@Html.Raw(Model.Ville ?? "")";
             var cpInit = "@Html.Raw(Model.CodePostal ?? "")";
             if(villeInit) {
@@ -318,7 +318,7 @@
             }
         }
 
-        // Init Autocomplete
+
         const inputVille = document.getElementById('inputVille');
         const suggestionsList = document.getElementById('suggestionsVille');
         const inputCp = document.getElementById('inputCp');

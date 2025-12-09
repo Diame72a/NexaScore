@@ -17,7 +17,7 @@ public partial class ProjetContext : IdentityDbContext<IdentityUser>
     {
     }
 
-    // --- VOS TABLES MÉTIER ---
+
     public virtual DbSet<Competence> Competences { get; set; }
     public virtual DbSet<CompetenceAcquise> CompetenceAcquises { get; set; }
     public virtual DbSet<CompetenceSouhaitee> CompetenceSouhaitees { get; set; }
@@ -31,20 +31,20 @@ public partial class ProjetContext : IdentityDbContext<IdentityUser>
     {
         if (!optionsBuilder.IsConfigured)
         {
-            // Idéalement, cette chaîne devrait être dans appsettings.json
+
             optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=MonProjetL3_DB;Trusted_Connection=True;MultipleActiveResultSets=true");
         }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // 1. CONFIGURATION IDENTITY (OBLIGATOIRE EN PREMIER)
+
         base.OnModelCreating(modelBuilder);
 
-        // 2. CORRECTION DU BUG "IdentityPasskeyData" (Pour compatibilité .NET 8 / EF Core)
+
         modelBuilder.Ignore("Microsoft.AspNetCore.Identity.IdentityPasskeyData");
 
-        // 3. CONFIGURATION DE VOS TABLES
+
         modelBuilder.Entity<Competence>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Competen__3214EC077FB5CF27");

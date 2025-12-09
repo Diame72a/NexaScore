@@ -1,27 +1,47 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "Mon Profil";
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3>@ViewData["Title"]</h3>
-<partial name="_StatusMessage" for="StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
-                <label asp-for="Username" class="form-label"></label>
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-header bg-transparent border-0 pt-4 pb-0 text-center">
+                <h3 class="fw-bold text-primary">
+                    <i class="bi bi-person-vcard-fill me-2"></i>@ViewData["Title"]
+                </h3>
+                <p class="text-muted small">Consultez et mettez à jour vos informations de contact.</p>
             </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+
+            <div class="card-body p-4">
+                <partial name="_StatusMessage" for="StatusMessage" />
+
+                <form id="profile-form" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Username" class="form-control bg-light" placeholder="Nom d'utilisateur" disabled />
+                        <label asp-for="Username" class="form-label text-muted">
+                            <i class="bi bi-person-badge me-1"></i> Nom d'utilisateur
+                        </label>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Numéro de téléphone" />
+                        <label asp-for="Input.PhoneNumber" class="form-label">
+                            <i class="bi bi-phone me-1"></i> Numéro de téléphone
+                        </label>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
+
+                    <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary shadow-sm rounded-3">
+                        <i class="bi bi-save me-2"></i> Enregistrer les modifications
+                    </button>
+                </form>
             </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
-        </form>
+        </div>
     </div>
 </div>
 

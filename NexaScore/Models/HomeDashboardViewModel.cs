@@ -3,8 +3,7 @@
     public class HomeDashboardViewModel
     {
 
-// Ici j'ai créé une class DTO ( Data Transfer Object )
-// Cette class contient que ce dont la page a besoin ( 3 chiffre entiers ) 
+
         public int NbOffres { get; set; }
         public int NbCandidats { get; set; }
         public int NbCompetences { get; set; }

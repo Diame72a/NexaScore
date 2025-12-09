@@ -3,13 +3,13 @@
 @{
     ViewData["Title"] = "Vivier Candidats";
 
-    // Récupération sécurisée des stats envoyées par le contrôleur
+
     int totalCandidats = ViewBag.TotalCandidats ?? 0;
     int totalExperts = ViewBag.TotalExperts ?? 0;
 }
 
 <style>
-    /* Effet de survol sur les cartes candidats */
+
     .candidate-card {
         transition: all 0.3s ease;
         border: 1px solid rgba(0,0,0,0.05);
@@ -21,7 +21,7 @@
             border-color: rgba(102, 126, 234, 0.3);
         }
 
-    /* Avatar avec dégradé */
+
     .avatar-initials {
         width: 60px;
         height: 60px;
@@ -36,7 +36,7 @@
         box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
     }
 
-    /* Badges personnalisés */
+
     .badge-xp {
         font-weight: 500;
         letter-spacing: 0.5px;
@@ -143,7 +143,7 @@
         {
             @foreach (var item in Model)
             {
-                // Calculs pour l'affichage (Badge & Initiale)
+
                 int xp = item.AnneesExperienceTotal ?? 0;
                 string badgeClass = xp >= 5 ? "bg-warning text-dark" : (xp >= 2 ? "bg-info text-white" : "bg-success text-white");
                 string badgeLabel = xp >= 5 ? "Senior" : (xp >= 2 ? "Confirmé" : "Junior");

@@ -7,17 +7,16 @@ namespace Projet.Controllers
 {
     public class HomeController : Controller
     {
-        // Declaration de variable qui va contenir la connexion de la base de données
-        // Readonly empeche la modification ou la suppression de la connexion au milieu du code
+
         private readonly ProjetContext _context;
 
-        // Ici, on injecte la dépendance 
+
         public HomeController(ProjetContext context)
         {
             _context = context;
         }
 
-        // J'ai utilisé LINQ -> C'est C# qui traduit ces lignes en requêtes SQL
+
         public IActionResult Index()
         {
             var stats = new HomeDashboardViewModel();

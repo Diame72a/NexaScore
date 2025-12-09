@@ -6,7 +6,7 @@
 }
 
 <style>
-    /* Styles spécifiques pour le slider de niveau */
+
     .level-dot {
         width: 10px;
         height: 10px;
@@ -224,7 +224,7 @@
 </div>
 
 <script>
-    // 1. AUTOCOMPLETION VILLE (API GOUV)
+
     const inputVille = document.getElementById('inputVille');
     const suggestionsList = document.getElementById('suggestionsVille');
     const inputCp = document.getElementById('inputCp');
@@ -261,12 +261,12 @@
         suggestionsList.style.display = 'none';
     }
 
-    // Fermer la liste si on clique ailleurs
+
     document.addEventListener('click', function(e) {
         if (e.target !== inputVille && suggestionsList) suggestionsList.style.display = 'none';
     });
 
-    // 2. MODAL BULK AJAX
+
     function loadBulkModal(offreId) {
         var myModal = new bootstrap.Modal(document.getElementById('modalBulkAdd'));
         myModal.show();

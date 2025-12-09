@@ -4,17 +4,16 @@
 @{
     ViewData["Title"] = "Dossier Candidat - " + Model.Nom;
 
-    // --- 1. LOGIQUE DATE & AGE ---
+
     var today = DateOnly.FromDateTime(DateTime.Now);
     var age = today.Year - Model.DateNaissance.Year;
     if (Model.DateNaissance > today.AddYears(-age)) age--;
 
-    // --- 2. LOGIQUE EXPÉRIENCE ---
+
     int experienceReelle = Model.AnneesExperienceTotal ?? 0;
     int expPercent = Math.Min((int)((experienceReelle / 15.0) * 100), 100);
 
-    // --- 3. LOGIQUE VISUELS ---
-    // Image par défaut (Unsplash) si pas de bannière
+
     string bannerUrl = !string.IsNullOrEmpty(Model.ImageBannierePath)
         ? Model.ImageBannierePath
         : "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1000&q=80";

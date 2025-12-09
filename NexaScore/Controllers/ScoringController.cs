@@ -13,18 +13,16 @@ namespace Projet.Controllers
     public class ScoringController : Controller
     {
         private readonly ProjetContext _context;
-        private readonly INotificationService _notifService; // 1. Déclaration
+        private readonly INotificationService _notifService; 
 
-        // 2. Injection
+
         public ScoringController(ProjetContext context, INotificationService notifService)
         {
             _context = context;
             _notifService = notifService;
         }
 
-        // ============================================================
-        // 1. INDEX (Liste des offres pour lancer le calcul)
-        // ============================================================
+
         public async Task<IActionResult> Index(string searchString)
         {
             var query = _context.Offres.Include(o => o.Poste).AsQueryable();
@@ -41,12 +39,10 @@ namespace Projet.Controllers
             return View(offres);
         }
 
-        // ============================================================
-        // 2. CALCULER (Cœur du système de Matching)
-        // ============================================================
+
         public async Task<IActionResult> Calculer(int id)
         {
-            // --- 1. CHARGEMENT DES DONNÉES ---
+
             var offre = await _context.Offres
                 .Include(o => o.CompetenceSouhaitees).ThenInclude(cs => cs.Competence)
                 .Include(o => o.ParametreScoring)
@@ -54,7 +50,7 @@ namespace Projet.Controllers
 
             if (offre == null) return NotFound();
 
-            // Poids par défaut si non définis
+
             int poidsComp = offre.ParametreScoring?.PoidsCompetences ?? 60;
             int poidsExp = offre.ParametreScoring?.PoidsExperience ?? 20;
             int poidsLoc = offre.ParametreScoring?.PoidsLocalisation ?? 20;
@@ -65,7 +61,7 @@ namespace Projet.Controllers
 
             var resultats = new List<CandidateMatchViewModel>();
 
-            // --- 2. BOUCLE SUR CHAQUE CANDIDAT ---
+
             foreach (var candidat in candidats)
             {
                 var vm = new CandidateMatchViewModel
@@ -80,7 +76,7 @@ namespace Projet.Controllers
                     DetailsNegatifs = new List<string>()
                 };
 
-                // A. SCORE COMPÉTENCES
+                
                 double totalPointsCompetences = 0;
                 double maxPointsCompetences = 0;
 
@@ -247,7 +243,7 @@ namespace Projet.Controllers
                 "text-warning", 
                 Url.Action("Calculer", "Scoring", new { id = offre.Id })
             );
-            // ---------------------------------------------
+            
 
             return View(classement);
         }

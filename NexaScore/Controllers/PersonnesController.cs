@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Projet.Models;
-using Projet.Services; // IMPORTANT : Indispensable pour trouver INotificationService
+using Projet.Services; 
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,21 +18,19 @@ namespace Projet.Controllers
     {
         private readonly ProjetContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly INotificationService _notifService; // <--- 1. DÉCLARATION ICI
+        private readonly INotificationService _notifService; 
 
-        // 2. INJECTION DANS LE CONSTRUCTEUR
+
         public PersonnesController(ProjetContext context,
                                    IWebHostEnvironment webHostEnvironment,
                                    INotificationService notifService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
-            _notifService = notifService; // <--- 3. ASSIGNATION ICI
+            _notifService = notifService; 
         }
 
-        // ============================================================
-        // 1. INDEX
-        // ============================================================
+
         public async Task<IActionResult> Index(string searchString, string villeFilter)
         {
             var query = _context.Personnes.AsQueryable();
@@ -68,9 +66,7 @@ namespace Projet.Controllers
             return View(candidats);
         }
 
-        // ============================================================
-        // 2. CREATE
-        // ============================================================
+
         public IActionResult Create()
         {
             return View();
@@ -91,7 +87,7 @@ namespace Projet.Controllers
                 _context.Add(personne);
                 await _context.SaveChangesAsync();
 
-                // 4. UTILISATION DU SERVICE (NOTIFICATION AUTOMATIQUE)
+
                 await _notifService.Ajouter(
                     "Nouveau Candidat",
                     $"{personne.Prenom} {personne.Nom} a rejoint le vivier.",
@@ -106,9 +102,7 @@ namespace Projet.Controllers
             return View(personne);
         }
 
-        // ============================================================
-        // 3. EDIT (AVEC UPLOAD)
-        // ============================================================
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -147,7 +141,7 @@ namespace Projet.Controllers
                     var original = await _context.Personnes.FindAsync(id);
                     if (original == null) return NotFound();
 
-                    // --- GESTION UPLOADS ---
+
                     if (fileProfil != null)
                     {
                         original.ImageProfilPath = await UploadFile(fileProfil, "profils");
@@ -161,9 +155,7 @@ namespace Projet.Controllers
                         original.CvPath = await UploadFile(fileCv, "cvs");
                         original.CvNomFichier = fileCv.FileName;
                     }
-                    // -----------------------
 
-                    // Mise à jour des champs
                     original.Nom = personne.Nom;
                     original.Prenom = personne.Prenom;
                     original.Email = personne.Email;
@@ -178,8 +170,8 @@ namespace Projet.Controllers
                     _context.Update(original);
                     await _context.SaveChangesAsync();
 
-                    // Optionnel : Notifier lors d'une modif importante
-                    // await _notifService.Ajouter("Profil mis à jour", $"Le dossier de {personne.Nom} a été modifié.", "fas fa-pen", "text-primary");
+
+
 
                     TempData["SuccessMessage"] = "Profil et fichiers mis à jour avec succès.";
                     return RedirectToAction(nameof(Edit), new { id = personne.Id });
@@ -205,9 +197,7 @@ namespace Projet.Controllers
             return View(personne);
         }
 
-        // ============================================================
-        // 4. GESTION COMPÉTENCES
-        // ============================================================
+
         [HttpGet]
         public async Task<IActionResult> AjouterPlusieurs(int id)
         {
@@ -270,9 +260,7 @@ namespace Projet.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ============================================================
-        // 5. DETAILS & DELETE
-        // ============================================================
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -300,9 +288,7 @@ namespace Projet.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ============================================================
-        // HELPER UPLOAD
-        // ============================================================
+
         private async Task<string> UploadFile(IFormFile file, string folderName)
         {
             string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", folderName);

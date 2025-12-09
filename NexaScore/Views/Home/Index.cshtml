@@ -5,7 +5,7 @@
 }
 
 <style>
-    /* Styles spécifiques Dashboard */
+
     .kpi-card {
         border: none;
         border-radius: 1rem;
@@ -19,7 +19,7 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
         }
 
-    /* Dégradés subtils pour les icônes */
+
     .bg-icon-blue {
         background: linear-gradient(135deg, rgba(78,115,223,0.1) 0%, rgba(78,115,223,0.2) 100%);
         color: #4e73df;
@@ -45,7 +45,7 @@
         font-size: 1.75rem;
     }
 
-    /* Timeline du bas */
+
     .list-group-item-action:hover {
         background-color: #f8f9fc;
         transform: translateX(5px);
@@ -241,7 +241,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 
-        // --- CHART 1: OFFRES (BARRES VERTICALES) ---
+
         const ctxMetiers = document.getElementById('chartMetiers').getContext('2d');
         const labelsMetiers = @Html.Raw(Json.Serialize(Model.LabelsMetiers));
         const dataMetiers = @Html.Raw(Json.Serialize(Model.DataMetiers));
@@ -273,7 +273,7 @@
             }
         });
 
-        // --- CHART 2: EXPÉRIENCE (DONUT) ---
+
         const ctxExp = document.getElementById('chartExp').getContext('2d');
         const dataExp = @Html.Raw(Json.Serialize(Model.DataExperience));
 
@@ -293,7 +293,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
 
-                // Trou large pour laisser la place au texte (85%)
+
                 cutout: '85%',
 
                 layout: { padding: 10 },

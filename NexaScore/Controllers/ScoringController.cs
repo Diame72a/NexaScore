@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Projet.Models;
-using Projet.Services; 
+using Projet.Services;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Projet.Controllers
@@ -13,8 +14,7 @@ namespace Projet.Controllers
     public class ScoringController : Controller
     {
         private readonly ProjetContext _context;
-        private readonly INotificationService _notifService; 
-
+        private readonly INotificationService _notifService;
 
         public ScoringController(ProjetContext context, INotificationService notifService)
         {
@@ -26,23 +26,17 @@ namespace Projet.Controllers
         public async Task<IActionResult> Index(string searchString)
         {
             var query = _context.Offres.Include(o => o.Poste).AsQueryable();
-
             if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(o => o.Titre.Contains(searchString) || o.VilleCible.Contains(searchString));
             }
-
             var offres = await query.OrderByDescending(o => o.DateCreation).ToListAsync();
             ViewBag.TotalCandidats = await _context.Personnes.CountAsync();
-            ViewData["CurrentFilter"] = searchString;
-
             return View(offres);
         }
 
-
         public async Task<IActionResult> Calculer(int id)
         {
-
             var offre = await _context.Offres
                 .Include(o => o.CompetenceSouhaitees).ThenInclude(cs => cs.Competence)
                 .Include(o => o.ParametreScoring)
@@ -51,16 +45,15 @@ namespace Projet.Controllers
             if (offre == null) return NotFound();
 
 
-            int poidsComp = offre.ParametreScoring?.PoidsCompetences ?? 60;
-            int poidsExp = offre.ParametreScoring?.PoidsExperience ?? 20;
-            int poidsLoc = offre.ParametreScoring?.PoidsLocalisation ?? 20;
+            int pComp = offre.ParametreScoring?.PoidsCompetences ?? 60;
+            int pExp = offre.ParametreScoring?.PoidsExperience ?? 20;
+            int pLoc = offre.ParametreScoring?.PoidsLocalisation ?? 20;
 
             var candidats = await _context.Personnes
                 .Include(p => p.CompetenceAcquises).ThenInclude(ca => ca.Competence)
                 .ToListAsync();
 
             var resultats = new List<CandidateMatchViewModel>();
-
 
             foreach (var candidat in candidats)
             {
@@ -70,182 +63,65 @@ namespace Projet.Controllers
                     NomComplet = $"{candidat.Prenom} {candidat.Nom}",
                     JobActuel = candidat.Ville ?? "Ville inconnue",
                     ChartLabels = new List<string>(),
-                    ChartDataOffre = new List<int>(),
                     ChartDataCandidat = new List<int>(),
-                    DetailsPositifs = new List<string>(),
-                    DetailsNegatifs = new List<string>()
+                    ChartDataOffre = new List<int>()
                 };
 
-                
-                double totalPointsCompetences = 0;
-                double maxPointsCompetences = 0;
-
-                foreach (var compRequise in offre.CompetenceSouhaitees)
+ 
+                double totalPoints = 0;
+                double maxPoints = 0;
+                foreach (var cs in offre.CompetenceSouhaitees)
                 {
-                    maxPointsCompetences += 100;
-                    vm.ChartLabels.Add(compRequise.Competence?.Nom ?? "?");
+                    maxPoints += 100;
+                    vm.ChartLabels.Add(cs.Competence?.Nom ?? "?");
+                    int requis = cs.NiveauRequis ?? 1;
+                    vm.ChartDataOffre.Add(requis);
 
-                    int niveauRequisInt = compRequise.NiveauRequis ?? 0;
-                    vm.ChartDataOffre.Add(niveauRequisInt);
+                    var ca = candidat.CompetenceAcquises.FirstOrDefault(c => c.CompetenceId == cs.CompetenceId);
+                    int reel = ca?.Niveau ?? 0;
+                    vm.ChartDataCandidat.Add(reel);
 
-                    var compCandidat = candidat.CompetenceAcquises
-                        .FirstOrDefault(c => c.CompetenceId == compRequise.CompetenceId);
-
-                    if (compCandidat != null)
-                    {
-                        int niveauReel = compCandidat.Niveau ?? 0;
-                        vm.ChartDataCandidat.Add(niveauReel);
-
-                        double ratio = (double)niveauReel / (double)niveauRequisInt;
-
-                        if (ratio > 1)
-                        {
-                            ratio = 1.1; 
-                            vm.DetailsPositifs.Add($"{compRequise.Competence?.Nom} (Expertise sup.)");
-                        }
-                        else if (ratio >= 1)
-                        {
-                            ratio = 1.0;
-                            vm.DetailsPositifs.Add($"{compRequise.Competence?.Nom} (Acquis)");
-                        }
-                        else
-                        {
-                            vm.DetailsNegatifs.Add($"{compRequise.Competence?.Nom} (Faible)");
-                        }
-
-                        totalPointsCompetences += (ratio * 100);
-                    }
-                    else
-                    {
-                        vm.ChartDataCandidat.Add(0);
-                        vm.DetailsNegatifs.Add($"{compRequise.Competence?.Nom} (Manquante)");
-                    }
+                    totalPoints += (Math.Min((double)reel / requis, 1.1) * 100);
                 }
+                vm.ScoreCompetences = maxPoints > 0 ? (int)((totalPoints / maxPoints) * 100) : 100;
 
-                
-                double scoreBrutComp = (maxPointsCompetences > 0)
-                    ? (totalPointsCompetences / maxPointsCompetences) * 100
-                    : 100;
 
-                vm.ScoreCompetences = (int)scoreBrutComp;
+                int scoreExp = 0;
+                int xp = candidat.AnneesExperienceTotal ?? 0;
+                var cible = offre.ParametreScoring?.CibleExperience ?? NiveauExperienceCible.PeuImporte;
 
-                
-                int scoreBrutExp = 0;
-                int xpCandidat = candidat.AnneesExperienceTotal ?? 0;
-                var niveauCible = offre.ParametreScoring?.CibleExperience ?? NiveauExperienceCible.PeuImporte;
-
-                int minRequis = 0;
-                int maxRequis = 0;
-                bool checkSurqualification = false;
-
-                switch (niveauCible)
+                switch (cible)
                 {
                     case NiveauExperienceCible.Junior:
-                        minRequis = 0; maxRequis = 2; checkSurqualification = true;
-                        break;
+                        scoreExp = (xp <= 2) ? 100 : 70; break;
                     case NiveauExperienceCible.Confirme:
-                        minRequis = 3; maxRequis = 5;
-                        break;
+                        scoreExp = (xp >= 2 && xp <= 5) ? 100 : (xp < 2 ? 40 : 80); break;
                     case NiveauExperienceCible.Senior:
-                        minRequis = 6; maxRequis = 99;
-                        break;
-                    default:
-                        minRequis = 0; maxRequis = 99;
-                        break;
+                        scoreExp = (xp >= 5) ? 100 : (int)((double)xp / 5 * 100); break;
+                    default: 
+                        scoreExp = (xp >= 5) ? 100 : (xp >= 2 ? 80 : 50); break;
                 }
+                vm.ScoreExperience = scoreExp;
 
-                if (niveauCible == NiveauExperienceCible.PeuImporte)
-                {
-                    if (xpCandidat >= 5) scoreBrutExp = 100;
-                    else if (xpCandidat >= 2) scoreBrutExp = 70;
-                    else scoreBrutExp = 40;
-                }
-                else
-                {
-                    if (xpCandidat >= minRequis && xpCandidat <= maxRequis)
-                    {
-                        scoreBrutExp = 100;
-                        vm.DetailsPositifs.Add($"Expérience idéale ({xpCandidat} ans)");
-                    }
-                    else if (xpCandidat < minRequis)
-                    {
-                        double denominateur = (minRequis == 0) ? 1 : (double)minRequis;
-                        double ratio = (double)xpCandidat / denominateur;
-                        scoreBrutExp = (int)(ratio * 100);
-                        vm.DetailsNegatifs.Add($"Manque d'expérience ({xpCandidat} ans / {minRequis} min)");
-                    }
-                    else
-                    {
-                        int ecart = xpCandidat - maxRequis;
-                        if (checkSurqualification && ecart >= 3)
-                        {
-                            scoreBrutExp = 55; 
-                            vm.DetailsNegatifs.Add($"⚠️ Surqualifié pour un poste Junior ({xpCandidat} ans)");
-                        }
-                        else
-                        {
-                            scoreBrutExp = 100;
-                            vm.DetailsPositifs.Add($"Expérience solide ({xpCandidat} ans)");
-                        }
-                    }
-                }
-                vm.ScoreExperience = scoreBrutExp;
 
-                
-                int scoreBrutLoc = 0;
-                string villeOffre = offre.VilleCible?.Trim().ToLower() ?? "";
-                string villeCandidat = candidat.Ville?.Trim().ToLower() ?? "";
+                vm.IsLocalisationOk = (candidat.Ville?.ToLower() == offre.VilleCible?.ToLower());
+                vm.ScoreLocalisation = vm.IsLocalisationOk ? 100 : 0;
 
-                if (!string.IsNullOrEmpty(villeOffre) && !string.IsNullOrEmpty(villeCandidat))
-                {
-                    if (villeOffre == villeCandidat)
-                    {
-                        scoreBrutLoc = 100;
-                        vm.IsLocalisationOk = true;
-                        vm.DetailsPositifs.Add("Localisation idéale");
-                    }
-                    else
-                    {
-                        vm.DetailsNegatifs.Add($"Ville différente ({candidat.Ville})");
-                    }
-                }
-                vm.ScoreLocalisation = scoreBrutLoc;
 
-                
-                double noteFinale = (scoreBrutComp * poidsComp) + (scoreBrutExp * poidsExp) + (scoreBrutLoc * poidsLoc);
-                double sommePoids = poidsComp + poidsExp + poidsLoc;
-                if (sommePoids == 0) sommePoids = 1;
+                double note = (vm.ScoreCompetences * pComp) + (vm.ScoreExperience * pExp) + (vm.ScoreLocalisation * pLoc);
+                vm.ScoreGlobal = (int)(note / (pComp + pExp + pLoc));
 
-                vm.ScoreGlobal = (int)(noteFinale / sommePoids);
 
-                
-                bool fautExclure = offre.ParametreScoring?.ExclureSiVilleDiff ?? false;
-                if (fautExclure && scoreBrutLoc == 0)
-                {
-                    vm.ScoreGlobal = 0;
-                    vm.DetailsNegatifs.Insert(0, "⛔ DISQUALIFIÉ (Mauvaise Ville)");
-                }
+                if ((offre.ParametreScoring?.ExclureSiVilleDiff ?? false) && !vm.IsLocalisationOk) vm.ScoreGlobal = 0;
 
                 resultats.Add(vm);
             }
 
-            
-            var classement = resultats.OrderByDescending(r => r.ScoreGlobal).ToList();
+
+            var top5 = resultats.OrderByDescending(r => r.ScoreGlobal).Take(5).ToList();
             ViewBag.TitreOffre = offre.Titre;
 
-            
-            int nbTop = classement.Count(c => c.ScoreGlobal >= 70);
-
-            await _notifService.Ajouter(
-                "Analyse Terminée",
-                $"Le scoring pour '{offre.Titre}' a généré {nbTop} profils prometteurs.",
-                "fas fa-magic",
-                "text-warning", 
-                Url.Action("Calculer", "Scoring", new { id = offre.Id })
-            );
-            
-
-            return View(classement);
+            return View(top5);
         }
     }
 }

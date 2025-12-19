@@ -189,7 +189,6 @@ namespace Projet.Controllers
             _context.Personnes.RemoveRange(_context.Personnes);
             _context.Postes.RemoveRange(_context.Postes);
             _context.Competences.RemoveRange(_context.Competences);
-
             await _context.SaveChangesAsync();
             TempData["Warning"] = "Base de données vidée.";
             return RedirectToAction(nameof(Index));

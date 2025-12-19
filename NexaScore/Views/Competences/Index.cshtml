@@ -24,7 +24,7 @@
 
     <div class="row g-4 mb-4">
 
-        <div class="col-lg-8">
+        <div class="col-lg">
             <div class="card border-0 shadow-sm h-100 rounded-4">
                 <div class="card-body p-4 d-flex flex-column justify-content-center">
                     <h6 class="fw-bold text-dark mb-3"><i class="fas fa-filter me-2 text-primary"></i>Filtrer le catalogue</h6>
@@ -56,25 +56,6 @@
                     </form>
                 </div>
             </div>
-        </div>
-
-        <div class="col-lg-4">
-            @if (Model.Any())
-            {
-                <div class="card border-0 shadow-sm h-100 rounded-4">
-                    <div class="card-body d-flex align-items-center">
-                        <div style="width: 120px; height: 120px; flex-shrink: 0;">
-                            <canvas id="chartTrends"></canvas>
-                        </div>
-                        <div class="ms-3">
-                            <h6 class="fw-bold mb-1 text-dark">Top Demandes</h6>
-                            <p class="small text-muted mb-0 lh-sm">
-                                Compétences les plus recherchées dans vos offres actives.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            }
         </div>
     </div>
 
@@ -140,47 +121,6 @@
     </div>
 </div>
 
-@if (Model.Any())
-{
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        var ctx = document.getElementById('chartTrends').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: @Html.Raw(Json.Serialize(ViewBag.TopLabels)),
-                datasets: [{
-                    data: @Html.Raw(Json.Serialize(ViewBag.TopData)),
-                    // Palette Bleue/Turquoise pour matcher la DA
-                    backgroundColor: [
-                        '#4e73df', // Bleu Primaire
-                        '#36b9cc', // Turquoise
-                        '#858796', // Gris
-                        '#42e695', // Vert
-                        '#f6c23e'  // Jaune (Accent)
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: function(context) {
-                                return context.label + ': ' + context.raw;
-                            }
-                        }
-                    }
-                },
-                cutout: '70%'
-            }
-        });
-    </script>
     <style>
         .hover-scale:hover {
             transform: scale(1.05);
@@ -191,4 +131,3 @@
             color: white !important;
         }
     </style>
-}
